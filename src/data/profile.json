@@ -1,0 +1,16 @@
+{
+  "name": "Karri Partanen",
+  "title": "Web Developer",
+  "skills": [
+    { "name": "React", "level": 80 },
+    { "name": "TypeScript", "level": 70 },
+    { "name": "Node.js", "level": 65 }
+  ],
+  "projects": [
+    {
+      "title": "Student Exchange Platform",
+      "year": 2025,
+      "description": "Full-stack platform with AI assistant"
+    }
+  ]
+}
