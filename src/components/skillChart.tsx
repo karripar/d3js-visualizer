@@ -20,17 +20,24 @@ export default function SkillChart() {
       .attr("width", width)
       .attr("height", profile.skills.length * barHeight);
 
-    svg
+    const bars = svg
       .selectAll("rect")
       .data(profile.skills)
       .enter()
       .append("rect")
       .attr("x", 0)
       .attr("y", (_, i) => i * barHeight)
-      .attr("width", (d) => d.level * 2)
+      .attr("width", 0) // start from 0
       .attr("height", 18)
       .attr("rx", 4)
-      .attr("fill", "#3b82f6"); // Tailwind blue-500
+      .attr("fill", "#3b82f6");
+
+    // Animate bars
+    bars
+      .transition()
+      .duration(1200)
+      .delay((_, i) => i * 150) // stagger effect
+      .attr("width", (d) => d.level * 2); // scale level to fit width
   }, []);
 
   return <svg ref={ref} className="mt-4" />;
