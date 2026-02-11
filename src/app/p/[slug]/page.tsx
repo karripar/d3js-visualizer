@@ -33,7 +33,7 @@ export default function ProfilePage({ params }: ProfilePageParams) {
     }, [slug]);
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white p-10 max-w-xl mx-auto">
+    <main className="min-h-screen text-white p-10 max-w-xl mx-auto">
       {data ? (
         <>
           <h1 className="text-4xl font-bold">{data.name}</h1>
