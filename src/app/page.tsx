@@ -7,7 +7,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [skills, setSkills] = useState<{ name: string; level: number }[]>([
-    { name: "", level: 50 },
+    { name: "", level: 5 },
   ]);
   const [github, setGithub] = useState("");
   const [linkedIn, setLinkedIn] = useState("");
@@ -15,7 +15,7 @@ export default function Home() {
   const [link, setLink] = useState("");
   const { createProfile } = useSupabase();
 
-  const addSkill = () => setSkills([...skills, { name: "", level: 50 }]);
+  const addSkill = () => setSkills([...skills, { name: "", level: 5 }]);
 
   const updateSkill = (
     i: number,
@@ -36,7 +36,8 @@ export default function Home() {
     const profile = await createProfile({
       name,
       title,
-      skills,
+      // map slider levels (1-10) to percentages (10-100)
+      skills: skills.map((s) => ({ name: s.name, level: s.level * 10 })),
       github: github || undefined,
       linkedin: linkedIn || undefined,
       introduction: introduction || undefined,
@@ -72,7 +73,7 @@ export default function Home() {
             <input
               id="name"
               className="mt-1 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              placeholder="Karri Partanen"
+              placeholder="John Doe"
               onChange={(e) => setName(e.target.value)}
             />
           </div>
@@ -145,31 +146,68 @@ export default function Home() {
         {/* Skills */}
         <section className="mt-10">
           <h2 className="text-xl font-semibold">Skills</h2>
+          <p className="text-sm text-zinc-400 mt-1">
+            List your key skills and rate your proficiency from 1 to 10. This
+            will help visualize your strengths in different areas. You can add
+            up to 8 skills.
+          </p>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-4 space-y-4">
             {skills.map((s, i) => (
-              <div key={i} className="flex gap-3">
+              <div
+                key={i}
+                className="flex flex-col sm:flex-row sm:items-center gap-3"
+              >
                 <div className="flex-1">
                   <label className="sr-only">Skill name</label>
                   <input
+                    type="text"
                     className="w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     placeholder="React"
+                    value={s.name}
                     onChange={(e) => updateSkill(i, "name", e.target.value)}
                   />
                 </div>
 
-                <div>
-                  <label className="sr-only">Skill level</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    className="w-24 p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                    value={s.level}
-                    onChange={(e) =>
-                      updateSkill(i, "level", Number(e.target.value))
-                    }
-                  />
+                <div className="flex flex-col">
+                  {/* <label className="text-xs text-zinc-400 text-center">
+                    Level: {s.level}/10
+                  </label> */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min={1}
+                      max={10}
+                      step={1}
+                      value={s.level}
+                      aria-label={`Skill level for ${s.name || "skill"}`}
+                      className="w-40 h-2 appearance-none bg-zinc-800 rounded-lg outline-none cursor-pointer"
+                      onChange={(e) =>
+                        updateSkill(i, "level", Number(e.target.value))
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowRight")
+                          updateSkill(i, "level", Math.min(10, s.level + 1));
+                        if (e.key === "ArrowLeft")
+                          updateSkill(i, "level", Math.max(1, s.level - 1));
+                      }}
+                      data-slider="skill"
+                    />
+                    <span className="text-sm text-zinc-300 w-10 text-right">
+                      {s.level * 10}%
+                    </span>
+                  </div>
+                  {/* ticks */}
+                  <div className="mt-1 flex justify-between w-40">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((t) => (
+                      <span
+                        key={t}
+                        className={`h-2 w-px ${
+                          t === s.level ? "bg-blue-400" : "bg-zinc-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
@@ -177,7 +215,12 @@ export default function Home() {
 
           <button
             onClick={addSkill}
-            className="mt-3 text-sm text-blue-400 hover:text-blue-300"
+            disabled={skills.length >= 8}
+            className={`mt-3 text-sm transition ${
+              skills.length >= 8
+                ? "text-zinc-600 cursor-not-allowed"
+                : "text-blue-400 hover:text-blue-300"
+            }`}
           >
             + Add another skill
           </button>

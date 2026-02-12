@@ -1,47 +1,210 @@
 "use client";
 
-import * as d3 from "d3";
 import { useEffect, useRef } from "react";
+import * as d3 from "d3";
 
-type Skill = {
+interface Skill {
   name: string;
-  level: number;
-};
+  level: number; // 0-100
+}
 
-export default function SkillChart({ skills }: { skills: Skill[] }) {
-  const ref = useRef<SVGSVGElement | null>(null);
+// Revamped D3.js chart replacing Three.js: responsive, accessible, and high-contrast.
+export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
+  const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!ref.current || !skills) return;
+    const container = mountRef.current;
+    if (!container) return;
 
-    const svg = d3.select(ref.current);
-    svg.selectAll("*").remove();
+    // Render function for full redraw (responsive)
+    const renderChart = () => {
+      const data = [...skills].sort((a, b) => b.level - a.level);
+      container.innerHTML = "";
 
-    const width = 300;
-    const barHeight = 28;
+      // Dimensions — adapt to small screens
+      const rect = container.getBoundingClientRect();
+      const width = Math.max(280, rect.width || 320);
+      const height = Math.max(220, Math.min(560, rect.height || 320));
 
-    svg.attr("width", width).attr("height", skills.length * barHeight);
+      // Compact margins for mobile
+      const isNarrow = width < 420;
+      const margin = isNarrow
+        ? { top: 24, right: 16, bottom: 40, left: 100 }
+        : { top: 32, right: 24, bottom: 48, left: 140 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
 
-    const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
+      const svg = d3
+        .select(container)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("role", "img")
+        .attr("aria-label", "Skill levels bar chart");
 
-    const bars = svg
-      .selectAll("rect")
-      .data(skills)
-      .enter()
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", (_, i) => i * barHeight)
-      .attr("width", 0)
-      .attr("height", 18)
-      .attr("rx", 6)
-      .attr("fill", "#3b82f6");
+      const g = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    bars
-      .transition()
-      .duration(1200)
-      .delay((_, i) => i * 120)
-      .attr("width", (d) => x(d.level));
+      const x = d3.scaleLinear().domain([0, 100]).range([0, innerWidth]).nice();
+      const y = d3
+        .scaleBand<string>()
+        .domain(data.map((d) => d.name))
+        .range([0, innerHeight])
+        .paddingInner(isNarrow ? 0.25 : 0.2)
+        .paddingOuter(isNarrow ? 0.08 : 0.05);
+
+      const color = d3
+        .scaleThreshold<number, string>()
+        .domain([30, 60, 80])
+        .range(["#ef4444", "#f59e0b", "#84cc16", "#22c55e"]);
+
+      // Grid
+      g.append("g")
+        .attr("class", "x-grid")
+        .call(
+          d3
+            .axisTop(x)
+            .ticks(Math.max(3, innerWidth / 140))
+            .tickSize(-innerHeight)
+            .tickFormat((d) => `${+d}%`)
+        )
+        .call((g) =>
+          g
+            .selectAll("text")
+            .attr("fill", "#a0aec0")
+            .attr("font-size", isNarrow ? 10 : 12)
+        )
+        .call((g) =>
+          g
+            .selectAll("line")
+            .attr("stroke", "#334155")
+            .attr("stroke-opacity", 0.3)
+        )
+        .call((g) => g.select(".domain").remove());
+
+      const bars = g
+        .selectAll<SVGRectElement, Skill>("rect")
+        .data<Skill>(data as Skill[], (d: Skill) => d.name)
+        .join("g")
+        .attr("class", "bar")
+        .attr("transform", (d) => `translate(0,${y(d.name)})`);
+
+      const corner = Math.min(10, y.bandwidth() / 3);
+      bars
+        .append("rect")
+        .attr("x", 0)
+        .attr("height", y.bandwidth())
+        .attr("rx", corner)
+        .attr("ry", corner)
+        .attr("fill", (d) => color(d.level))
+        .attr("fill-opacity", 0.9)
+        .attr("stroke", "#0f172a")
+        .attr("stroke-opacity", 0.15)
+        .attr("width", 0)
+        .transition()
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .attr("width", (d) => x(d.level));
+
+      // Value labels — switch to outside on very short bars
+      bars
+        .append("text")
+        .attr("class", "value-label")
+        .attr("y", y.bandwidth() / 2)
+        .attr("dy", "0.35em")
+        .attr("font-weight", 700)
+        .attr("font-size", Math.min(16, Math.max(11, y.bandwidth() * 0.45)))
+        .text((d) => `${d.level}%`)
+        .attr("x", (d) => x(d.level) - (isNarrow ? 6 : 8))
+        .attr("text-anchor", "end")
+        .attr("fill", "#f8fafc")
+        .style("filter", "drop-shadow(0 1px 1px rgba(0,0,0,0.6))")
+        .filter((d) => x(d.level) < 40)
+        .attr("x", (d) => x(d.level) + 6)
+        .attr("text-anchor", "start")
+        .attr("fill", "#e2e8f0");
+
+      // Left labels — smaller on narrow screens, ellipsis
+      const leftLabels = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left - 8},${margin.top})`);
+
+      leftLabels
+        .selectAll("text")
+        .data(data)
+        .join("text")
+        .attr("x", 0)
+        .attr("y", (d) => (y(d.name) ?? 0) + y.bandwidth() / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", "end")
+        .attr("fill", "#e5e7eb")
+        .attr("font-weight", 600)
+        .attr(
+          "font-size",
+          isNarrow ? 12 : Math.min(16, Math.max(12, y.bandwidth() * 0.45))
+        )
+        .text((d) => d.name)
+        .each(function () {
+          const self = d3.select(this);
+          const text = self.text();
+          const limit = isNarrow ? 18 : 22;
+          if ((text?.length ?? 0) > limit) {
+            self.text(text.slice(0, limit - 2) + "…");
+          }
+        })
+        .style("filter", "drop-shadow(0 1px 1px rgba(0,0,0,0.5))");
+
+      // Bottom axis
+      g.append("g")
+        .attr("transform", `translate(0,${innerHeight})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .ticks(Math.max(3, innerWidth / 140))
+            .tickFormat((d) => `${+d}%`)
+        )
+        .call((g) =>
+          g
+            .selectAll("text")
+            .attr("fill", "#cbd5e1")
+            .attr("font-size", isNarrow ? 10 : 12)
+        )
+        .call((g) => g.select("path").attr("stroke", "#334155"));
+
+      // Title
+      svg
+        .append("text")
+        .attr("x", margin.left)
+        .attr("y", isNarrow ? 18 : 22)
+        .attr("fill", "#ffffff")
+        .attr("font-size", isNarrow ? 16 : 18)
+        .attr("font-weight", 700)
+     
+    };
+
+    renderChart();
+
+    // Debounced resize to re-render responsively
+    let resizeTimer: number | undefined;
+    const onResize = () => {
+      if (resizeTimer) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        renderChart();
+      }, 120);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      container.innerHTML = "";
+    };
   }, [skills]);
 
-  return <svg ref={ref} className="mt-6" />;
+  return (
+    <div
+      ref={mountRef}
+      className="relative w-full max-w-full h-80 md:h-96 lg:h-112 rounded-xl bg-[rgb(5,9,18)]/60 backdrop-blur-sm ring-1 ring-slate-700/40 p-2"
+    />
+  );
 }
