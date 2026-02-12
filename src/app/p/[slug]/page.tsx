@@ -5,7 +5,9 @@ import useSupabase from "@/hooks/supabaseHooks";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-
+import BackButton from "@/components/nav/BackButton";
+// profile icon from lucide react
+import { User } from "lucide-react";
 
 interface ProfileData {
   name: string;
@@ -14,6 +16,7 @@ interface ProfileData {
   introduction?: string;
   github?: string;
   linkedin?: string;
+  personal_link?: string;
 }
 
 export default function ProfilePage() {
@@ -34,6 +37,7 @@ export default function ProfilePage() {
               introduction: profile.introduction || "",
               github: profile.github || "",
               linkedin: profile.linkedin || "",
+              personal_link: profile.personal_link || "",
             });
           } else {
             setData(null);
@@ -49,7 +53,17 @@ export default function ProfilePage() {
   }, [slug]);
 
   return (
-    <main id="profile-card" className="min-h-screen bg-zinc-950 relative overflow-hidden">
+    <main
+      id="profile-card"
+      className="min-h-screen bg-zinc-950 relative overflow-hidden"
+    >
+      <BackButton
+        to="/"
+        label="Back to Home"
+        variant="ghost"
+        className="absolute top-4 left-4 z-50"
+      />
+
       {/* Glow blobs */}
       <div className="absolute -top-40 -left-40 w-150 h-150 bg-blue-500/30 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -right-40 w-150 h-150 bg-purple-500/30 rounded-full blur-3xl" />
@@ -100,6 +114,19 @@ export default function ProfilePage() {
                       className="opacity-90"
                     />
                     <span className="text-sm text-white">LinkedIn</span>
+                  </a>
+                )}
+
+                {data.personal_link && (
+                  <a
+                    href={data.personal_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-white/10 border border-white/10 rounded-lg hover:bg-white/20 transition-all duration-200" 
+                    title="Personal Website"
+                  >
+                    <User size={20} className="opacity-90" />
+                    <span className="text-sm text-white">Website</span>
                   </a>
                 )}
               </div>

@@ -23,13 +23,13 @@ export default function LandingPage() {
       <section className="relative z-10 px-6 pt-24 pb-12 sm:pt-32 sm:pb-16 max-w-4xl mx-auto text-center text-white">
         {/* wordmark */}
         <div className="mx-auto w-fit">
-          <span className="text-3xl sm:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-fuchsia-400 to-purple-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]">
+          <span className="text-3xl sm:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-linear-to-r from-blue-400 via-fuchsia-400 to-purple-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]">
             Aspect
           </span>
         </div>
 
         <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300">
-          Build and share a visual developer profile
+          Build and share a visual professional profile
         </div>
         <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight">
           Turn your skills into a visual CV
