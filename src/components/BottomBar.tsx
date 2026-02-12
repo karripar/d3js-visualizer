@@ -13,6 +13,15 @@ export function TechBar() {
         </TechBadge>
         <TechBadge icon="/icons/D3.js.svg">D3.js</TechBadge>
       </div>
+      {/* Creator credits */}
+        <div className="absolute top-1 right-3 text-[14px] text-zinc-500">
+          Created by{" "}
+          <a
+            href="https://github.com/karripar"
+            target="_blank"
+            className="underline hover:text-zinc-400 transition"
+          >karripar</a>
+        </div>
       
     </footer>
   );

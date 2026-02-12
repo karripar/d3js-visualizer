@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import useSupabase from "@/hooks/supabaseHooks";
+import { TechBar } from "@/components/BottomBar";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -11,6 +12,7 @@ export default function Home() {
   ]);
   const [github, setGithub] = useState("");
   const [linkedIn, setLinkedIn] = useState("");
+  const [personalLink, setPersonalLink] = useState("");
   const [introduction, setIntroduction] = useState("");
   const [link, setLink] = useState("");
   const { createProfile } = useSupabase();
@@ -40,6 +42,7 @@ export default function Home() {
       skills: skills.map((s) => ({ name: s.name, level: s.level * 10 })),
       github: github || undefined,
       linkedin: linkedIn || undefined,
+      personal_link: personalLink || undefined,
       introduction: introduction || undefined,
     });
 
@@ -120,6 +123,33 @@ export default function Home() {
               className="mt-1 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
               placeholder="https://linkedin.com/in/username"
               onChange={(e) => setLinkedIn(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="personal-link"
+              className="block text-sm font-medium text-zinc-300"
+            >
+              Personal website URL{" "}
+              <span className="text-zinc-500">(optional)</span>
+            </label>
+            <input
+              id="personal-link"
+              className="mt-1 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              placeholder="https://yourportfolio.com"
+              onChange={(e) => {
+                const url = e.target.value;
+                // Basic URL validation
+                if (
+                  url &&
+                  !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(url)
+                ) {
+                  alert("Please enter a valid URL starting with http:// or https://");
+                  return;
+                }
+                setPersonalLink(url);
+              }}
             />
           </div>
         </section>
@@ -255,6 +285,7 @@ export default function Home() {
           </div>
         )}
       </div>
+      <TechBar />
     </main>
   );
 }

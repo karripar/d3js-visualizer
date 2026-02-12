@@ -7,5 +7,6 @@ export type Profile = {
     introduction?: string;
     github?: string;
     linkedin?: string;
+    personal_link?: string;
     created_at: string;
 }
