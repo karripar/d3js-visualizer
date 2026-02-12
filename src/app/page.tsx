@@ -10,9 +10,25 @@ export default function LandingPage() {
       <div className="absolute top-[-20%] left-[-10%] w-125 h-125 bg-blue-500/30 rounded-full blur-3xl" />
       <div className="absolute bottom-[-20%] right-[-10%] w-125 h-125 bg-purple-500/30 rounded-full blur-3xl" />
 
+      {/* floating brand badge */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300 shadow-md shadow-blue-500/10">
+          <span className="font-semibold tracking-wide text-white">Aspect</span>
+          <span className="h-1 w-1 rounded-full bg-blue-400/70" />
+          <span className="text-zinc-400">Visual CV</span>
+        </div>
+      </div>
+
       {/* hero */}
-      <section className="relative z-10 px-6 pt-20 pb-12 sm:pt-28 sm:pb-16 max-w-4xl mx-auto text-center text-white">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300">
+      <section className="relative z-10 px-6 pt-24 pb-12 sm:pt-32 sm:pb-16 max-w-4xl mx-auto text-center text-white">
+        {/* wordmark */}
+        <div className="mx-auto w-fit">
+          <span className="text-3xl sm:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-fuchsia-400 to-purple-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]">
+            Aspect
+          </span>
+        </div>
+
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300">
           Build and share a visual developer profile
         </div>
         <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-tight">

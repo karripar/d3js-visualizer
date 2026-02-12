@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function TechBar() {
   return (
-    <footer className="fixed bottom-0 left-0 w-full bg-white/5 backdrop-blur-xl border-t border-white/10">
+    <footer className="sticky bottom-0 left-0 w-full bg-white/5 backdrop-blur-xl border-t border-white/10 z-40">
       <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-300">
         <span className="flex items-center gap-1">Powered by</span>
 
@@ -14,15 +14,16 @@ export function TechBar() {
         <TechBadge icon="/icons/D3.js.svg">D3.js</TechBadge>
       </div>
       {/* Creator credits */}
-        <div className="absolute top-1 right-3 text-[14px] text-zinc-500">
-          Created by{" "}
-          <a
-            href="https://github.com/karripar"
-            target="_blank"
-            className="underline hover:text-zinc-400 transition"
-          >karripar</a>
-        </div>
-      
+      <div className="absolute top-1 right-3 text-[14px] text-zinc-500">
+        Created by{" "}
+        <a
+          href="https://github.com/karripar"
+          target="_blank"
+          className="underline hover:text-zinc-400 transition"
+        >
+          karripar
+        </a>
+      </div>
     </footer>
   );
 }

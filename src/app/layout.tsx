@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TechBar } from "@/components/BottomBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Visual CV Generator",
+  title: "Aspect - Visual CV Generator",
   description: "Generate a visual CV based on your skills using D3.js and Next.js",
 };
 
