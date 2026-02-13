@@ -3,6 +3,7 @@
 import { useState } from "react";
 import useSupabase from "@/hooks/supabaseHooks";
 import { TechBar } from "@/components/BottomBar";
+import BackButton from "@/components/nav/BackButton";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -53,6 +54,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-zinc-950 relative overflow-hidden">
+        <BackButton to="/" label="Back to Home" variant="ghost" className="absolute top-4 left-4 z-10" />
       <div className="absolute top-[-20%] left-[-10%] w-125 h-125 bg-blue-500/30 rounded-full blur-3xl" />
       <div className="absolute bottom-[-20%] right-[-10%] w-125 h-125 bg-purple-500/30 rounded-full blur-3xl" />
 
@@ -61,7 +63,7 @@ export default function Home() {
           Generate Your Visual CV
         </h1>
         <p className="mt-2 text-zinc-400">
-          Fill in your details to create a shareable visual developer profile.
+          Fill in your details to create a shareable visual professional profile.
         </p>
 
         {/* Basic Info */}
