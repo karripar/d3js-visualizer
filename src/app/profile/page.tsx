@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { TechBar } from "@/components/BottomBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import BackButton from "@/components/nav/BackButton";
 
 type Resume = {
   id: number;
