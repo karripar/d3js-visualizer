@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aspect — Visual CV
+
+A Next.js app to build and share a visual professional profile. Users fill a simple form, rate up to eight skills, and get a shareable profile URL. Skill proficiency is rendered with clean visual charts using D3.js.
+
+## Features
+
+- Landing page with CTA and demo profile
+- Profile generator at /new
+- Public profile pages at /p/[slug]
+- Visual skill charts (D3.js)
+- Clean, modern UI with Tailwind CSS
+- Optional Supabase integration hooks for auth/data
+
+## Tech Stack
+
+- Next.js 16, React 19
+- TypeScript
+- Tailwind CSS v4 (postcss)
+- D3.js for charts
+- Three.js (available for 3D visuals)
+- Supabase JS SDK
+- ESLint 9
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies
+   - npm install
+2. Run the dev server
+   - npm run dev
+3. Open http://localhost:3000
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Scripts
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- dev: Start Next.js in development
+- build: Production build
+- start: Start production server
+- lint: Run ESLint
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If you use Supabase, add these to .env.local:
 
-## Learn More
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-To learn more about Next.js, take a look at the following resources:
+See src/lib/supabase.ts and src/hooks/supabaseHooks.ts.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- / — Landing page (src/app/page.tsx)
+- /new — Create a profile (src/app/new/page.tsx)
+- /p/[slug] — View a public profile (src/app/p/[slug]/page.tsx)
+- /profile — Profile view/editor (src/app/profile/page.tsx)
 
-## Deploy on Vercel
+## Notable Components
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- components/BottomBar.tsx — Tech icons bar
+- components/skillChart.tsx — D3-based skill visualization
+- components/form/profileForm.tsx — Profile form
+- components/auth/GoogleLogin.tsx — Google auth UI
+- components/nav/\* — Navigation helpers
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Data
+
+- src/data/profile.json — Example profile data
+- supabase/schemas/schema.sql — Database schema (if using Supabase)
+
+## Project Structure (simplified)
+
+- public/ — Static assets and icons
+- src/app/ — Next.js App Router pages and layout
+- src/components/ — UI components and charts
+- src/hooks/ — Auth and Supabase hooks
+- src/lib/ — Supabase client
+- src/types/ — Local TypeScript types
+
+## Styling
+
+- Tailwind CSS v4 enabled via postcss.config.mjs and globals.css
+- Utility-first classes used throughout the app
+
+## Deployment
+
+- Build: npm run build
+- Start: npm run start
+- Configure environment variables on your hosting provider (Vercel recommended)
+
+## Notes
+
+- React 19 and Next 16 require up-to-date Node.js.
+- D3 charts should be rendered client-side ("use client").
+- Three.js is installed but optional; use for future 3D visuals.
+
+## License
+
+Proprietary. Do not distribute without permission.
