@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AuthTab from "@/components/nav/AuthTab";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Aspect - Visual CV Generator",
-  description: "Generate a visual CV based on your skills using D3.js and Next.js",
+  description:
+    "Generate a visual CV based on your skills using D3.js and Next.js",
 };
 
 export default function RootLayout({
@@ -27,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <AuthTab />
         {children}
       </body>
     </html>

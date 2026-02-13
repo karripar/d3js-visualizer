@@ -138,18 +138,7 @@ export default function Home() {
               id="personal-link"
               className="mt-1 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
               placeholder="https://yourportfolio.com"
-              onChange={(e) => {
-                const url = e.target.value;
-                // Basic URL validation
-                if (
-                  url &&
-                  !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(url)
-                ) {
-                  alert("Please enter a valid URL starting with http:// or https://");
-                  return;
-                }
-                setPersonalLink(url);
-              }}
+              onChange={(e) => setPersonalLink(e.target.value)}
             />
           </div>
         </section>
