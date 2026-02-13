@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { TechBar } from "@/components/BottomBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import ResumeList from "@/components/ResumeList";
 import BackButton from "@/components/nav/BackButton";
 
 type Resume = {
@@ -81,8 +82,13 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-linear-to-b from-zinc-900 via-zinc-900 to-black text-zinc-100">
+      {/* Global back button */}
+      <div className="fixed top-4 left-4 z-30">
+        <BackButton to="/" label="Back to Home" variant="ghost" />
+      </div>
+
       {/* Header */}
-      <header className="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-6 sm:pt-10 pb-4 sm:pb-6">
+      <header className="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-12 sm:pt-16 pb-4 sm:pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-3 sm:gap-4">
             {userAvatar ? (
@@ -114,14 +120,7 @@ export default function ProfilePage() {
               >
                 Log out
               </button>
-            ) : (
-              <Link
-                href="/"
-                className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/10 text-sm backdrop-blur-sm transition-colors"
-              >
-                Go to home
-              </Link>
-            )}
+            ) : null}
             <Link
               href="/new"
               className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 border border-blue-400/40 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0"
@@ -185,32 +184,7 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {resumes.map((r) => (
-                <li
-                  key={r.id}
-                  className="group rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition overflow-hidden shadow-sm hover:shadow-md"
-                >
-                  <Link href={`/p/${r.slug}`} className="block p-3 sm:p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-sm sm:text-base font-medium text-zinc-100 group-hover:text-white">
-                          {r.name}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-zinc-400">
-                          {r.title}
-                        </p>
-                      </div>
-                      <span className="text-[10px] sm:text-[11px] text-zinc-500 whitespace-nowrap">
-                        {r.created_at
-                          ? new Date(r.created_at).toLocaleDateString()
-                          : ""}
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <ResumeList resumes={resumes} />
           )}
         </section>
       </main>

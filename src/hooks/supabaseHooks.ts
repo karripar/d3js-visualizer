@@ -7,6 +7,11 @@ import { Profile } from "@/types/LocalTypes";
  */
 const useSupabase = () => {
 
+    const getUser = () => {
+        const user = supabase.auth.getUser();
+        return user;
+    }
+
     // Fetch a profile by its ID
     const getProfile = async (slug: string) => {
         const { data, error } = await supabase
@@ -43,7 +48,8 @@ const useSupabase = () => {
 
     return {
         getProfile,
-        createProfile
+        createProfile,
+        getUser,
     }
 }
 
