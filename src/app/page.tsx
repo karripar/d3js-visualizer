@@ -68,14 +68,13 @@ export default function LandingPage() {
           <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5">
             <h3 className="font-semibold">Visualized skills</h3>
             <p className="text-sm text-zinc-400 mt-1">
-              Your proficiency is mapped to clean visual charts for an immediate
-              overview.
+              Your proficiency is mapped to clean visual charts for an immediate overview.
             </p>
           </div>
           <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5">
             <h3 className="font-semibold">Shareable link</h3>
             <p className="text-sm text-zinc-400 mt-1">
-              Get a unique URL to share with recruiters and peers.
+            Your proficiency is mapped to clean visual charts for an immediate overview.
             </p>
           </div>
         </div>
