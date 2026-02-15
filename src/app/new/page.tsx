@@ -32,6 +32,7 @@ export default function Home() {
 
   const handleFormSubmit = async (data: ProfileFormData) => {
     const profile = await createProfile({
+      user_id: user?.id ?? "", // Add user_id here
       name: data.name,
       title: data.title,
       skills: data.skills.map((s) => ({ name: s.name, level: s.level * 10 })),

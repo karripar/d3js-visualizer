@@ -4,10 +4,11 @@ import SkillChart from "@/components/skillChart";
 import useSupabase from "@/hooks/supabaseHooks";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import BackButton from "@/components/nav/BackButton";
 // profile icon from lucide react
-import { User } from "lucide-react";
+import ProfileCard from "@/components/profile/ProfileCard";
+import ProjectsCard from "@/components/profile/ProjectsCard";
+import { Project } from "@/types/LocalTypes";
 
 interface ProfileData {
   name: string;
@@ -17,6 +18,7 @@ interface ProfileData {
   github?: string;
   linkedin?: string;
   personal_link?: string;
+  projects?: Project[];
 }
 
 export default function ProfilePage() {
@@ -38,6 +40,7 @@ export default function ProfilePage() {
               github: profile.github || "",
               linkedin: profile.linkedin || "",
               personal_link: profile.personal_link || "",
+              projects: profile.projects || [],
             });
           } else {
             setData(null);
@@ -50,6 +53,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   return (
@@ -57,83 +61,20 @@ export default function ProfilePage() {
       id="profile-card"
       className="min-h-screen bg-zinc-950 relative overflow-hidden"
     >
-      <BackButton
-        to="/"
-        label="Back to Home"
-        variant="ghost"
-        className="absolute top-4 left-4 z-50"
-      />
+      {/* Glow blobs - smaller on mobile, larger on desktop */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 sm:w-120 sm:h-120 bg-blue-500/30 rounded-full blur-3xl" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 sm:w-120 sm:h-120 bg-purple-500/30 rounded-full blur-3xl" />
 
-      {/* Glow blobs */}
-      <div className="absolute -top-40 -left-40 w-150 h-150 bg-blue-500/30 rounded-full blur-3xl" />
-      <div className="absolute -bottom-40 -right-40 w-150 h-150 bg-purple-500/30 rounded-full blur-3xl" />
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 relative z-10 gap-8">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 max-w-2xl w-full shadow-xl text-white">
-          {data ? (
-            <>
-              <h1 className="text-4xl font-bold tracking-tight">{data.name}</h1>
-              <p className="text-lg text-blue-400 font-medium">{data.title}</p>
+      {/* Content container with responsive spacing */}
+      <div className="min-h-screen flex flex-col items-center justify-start px-3 sm:px-6 py-12 sm:py-16 relative z-10 gap-6 sm:gap-8">
+        {/* Back button placed within flow to avoid overlap */}
+        <div className="self-start">
+          <BackButton to="/" label="Back to Home" variant="ghost" />
+        </div>
 
-              <p className="mt-4 text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                {data.introduction || "No introduction provided."}
-              </p>
-
-              <div className="mt-6 flex gap-3">
-                {data.github && (
-                  <a
-                    href={data.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 bg-white/10 border border-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
-                    title="GitHub"
-                  >
-                    <Image
-                      src="/icons/github.svg"
-                      alt="GitHub"
-                      width={24}
-                      height={24}
-                      className="opacity-90"
-                    />
-                    <span className="text-sm text-white">GitHub</span>
-                  </a>
-                )}
-
-                {data.linkedin && (
-                  <a
-                    href={data.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 bg-white/10 border border-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
-                    title="LinkedIn"
-                  >
-                    <Image
-                      src="/icons/linkedin.svg"
-                      alt="LinkedIn"
-                      width={24}
-                      height={24}
-                      className="opacity-90"
-                    />
-                    <span className="text-sm text-white">LinkedIn</span>
-                  </a>
-                )}
-
-                {data.personal_link && (
-                  <a
-                    href={data.personal_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 bg-white/10 border border-white/10 rounded-lg hover:bg-white/20 transition-all duration-200" 
-                    title="Personal Website"
-                  >
-                    <User size={20} className="opacity-90" />
-                    <span className="text-sm text-white">Website</span>
-                  </a>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="text-zinc-400">Loading profile…</p>
-          )}
+        {/* Profile card */}
+        <div className="w-full max-w-2xl">
+          <ProfileCard data={data} />
         </div>
 
         {/* Chart below the card so it isn't behind the text */}
@@ -142,6 +83,15 @@ export default function ProfilePage() {
             <SkillChart skills={data.skills} />
           </div>
         )}
+
+        {/* Project card for each project */}
+        {data?.projects &&
+          data.projects.length > 0 &&
+          data.projects.map((project, index) => (
+            <div key={index} className="w-full max-w-2xl">
+              <ProjectsCard project={project} />
+            </div>
+          ))}
       </div>
     </main>
   );
