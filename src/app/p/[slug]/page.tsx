@@ -21,6 +21,34 @@ interface ProfileData {
   projects?: Project[];
 }
 
+// Simple sessionStorage cache helpers
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const cacheKey = (slug: string) => `profile:${slug}`;
+
+function readCache(slug: string): ProfileData | null {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = sessionStorage.getItem(cacheKey(slug));
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as { data: ProfileData; ts: number };
+    if (!cached?.data || !cached?.ts) return null;
+    const isFresh = Date.now() - cached.ts < CACHE_TTL_MS;
+    return isFresh ? cached.data : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(slug: string, data: ProfileData): void {
+  try {
+    if (typeof window === "undefined") return;
+    const payload = JSON.stringify({ data, ts: Date.now() });
+    sessionStorage.setItem(cacheKey(slug), payload);
+  } catch {
+    // ignore
+  }
+}
+
 export default function ProfilePage() {
   const { getProfile } = useSupabase();
   const { slug } = useParams<{ slug: string }>();
@@ -29,22 +57,33 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        if (slug) {
-          const profile = await getProfile(slug);
-          if (profile) {
-            setData({
-              name: profile.name,
-              title: profile.title,
-              skills: profile.skills,
-              introduction: profile.introduction || "",
-              github: profile.github || "",
-              linkedin: profile.linkedin || "",
-              personal_link: profile.personal_link || "",
-              projects: profile.projects || [],
-            });
-          } else {
-            setData(null);
-          }
+        if (!slug) return;
+
+        // 1) Try cache first
+        const cached = readCache(slug);
+        if (cached) {
+          setData(cached);
+          console.log("Loaded profile from cache:", slug);
+          return; // Skip network if fresh cache
+        }
+
+        // 2) Fallback to Supabase
+        const profile = await getProfile(slug);
+        if (profile) {
+          const normalized: ProfileData = {
+            name: profile.name,
+            title: profile.title,
+            skills: profile.skills,
+            introduction: profile.introduction || "",
+            github: profile.github || "",
+            linkedin: profile.linkedin || "",
+            personal_link: profile.personal_link || "",
+            projects: profile.projects || [],
+          };
+          setData(normalized);
+          writeCache(slug, normalized);
+        } else {
+          setData(null);
         }
       } catch (error) {
         console.error("Error fetching profile:", error);

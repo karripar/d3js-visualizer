@@ -18,7 +18,7 @@ export default function Home() {
     let mounted = true; // to prevent state updates if component unmounts
     (async () => {
       try {
-        const response = await getUser(); 
+        const response = await getUser();
         if (mounted)
           setUser(response.data.user ? { id: response.data.user.id } : null);
       } finally {
@@ -53,12 +53,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 relative overflow-hidden">
+    <main className="min-h-screen bg-zinc-950 relative overflow-hidden pt-16 sm:pt-0">
       <BackButton
         to="/"
         label="Back to Home"
         variant="ghost"
-        className="absolute top-4 left-4 z-10"
+        className="fixed top-6 left-4 sm:top-4 z-10"
       />
       <div className="absolute top-[-20%] left-[-10%] w-125 h-125 bg-blue-500/30 rounded-full blur-3xl" />
       <div className="absolute bottom-[-20%] right-[-10%] w-125 h-125 bg-purple-500/30 rounded-full blur-3xl" />

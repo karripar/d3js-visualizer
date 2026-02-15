@@ -3,16 +3,12 @@
 import UpdateForm from "@/components/form/updateForm";
 import useSupabase from "@/hooks/supabaseHooks";
 import type { Profile } from "@/types/LocalTypes";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import BackButton from "@/components/nav/BackButton";
 import { TechBar } from "@/components/BottomBar";
 import { useParams } from "next/navigation";
 
-export default function UpdateProfilePage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function UpdateProfilePage() {
   const { slug } = useParams<{ slug: string }>();
   const { getProfile, updateProfile } = useSupabase();
   const [existingProfile, setExistingProfile] = useState<Profile | null>(null);
@@ -49,13 +45,15 @@ export default function UpdateProfilePage({
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 relative overflow-hidden">
+    // Add top padding to ensure space for the absolute BackButton
+    <main className="min-h-screen bg-zinc-950 relative overflow-hidden pt-16 md:pt-20">
       <BackButton
-        to={`/p/${slug}`}
+        to={`/profile`}
         label="Back to Profile"
         variant="ghost"
         className="absolute top-4 left-4 z-10"
       />
+
       <div className="absolute top-[-20%] left-[-10%] w-125 h-125 bg-blue-500/30 rounded-full blur-3xl" />
       <div className="absolute bottom-[-20%] right-[-10%] w-125 h-125 bg-purple-500/30 rounded-full blur-3xl" />
 
@@ -76,8 +74,8 @@ export default function UpdateProfilePage({
           </div>
         </div>
       ) : (
-        <div className="text-white p-10 max-w-3xl mx-auto mb-24">
-          <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-6 w-full">
+        <div className="text-white p-6 max-w-3xl mx-auto mb-24">
+          <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-2 w-full">
             <h1 className="text-2xl font-semibold mb-4">Update Profile</h1>
             <UpdateForm profile={existingProfile} onSave={handleSave} />
           </div>

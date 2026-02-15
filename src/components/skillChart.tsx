@@ -16,6 +16,9 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
     const container = mountRef.current;
     if (!container) return;
 
+    // Ensure container hides overflow on very small screens
+    container.style.overflow = "hidden";
+
     // Render function for full redraw (responsive)
     const renderChart = () => {
       const data = [...skills].sort((a, b) => b.level - a.level);
@@ -26,25 +29,49 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
       const width = Math.max(280, rect.width || 320);
       const height = Math.max(220, Math.min(560, rect.height || 320));
 
+      // Compute longest label length to adjust left margin dynamically
+      const longestLabel = data.reduce(
+        (max, d) => Math.max(max, d.name.length),
+        0
+      );
+
       // Compact margins for mobile
       const isNarrow = width < 420;
+      const baseLeft = isNarrow ? 90 : 120;
+      const extraLeft = Math.min(
+        80,
+        Math.max(0, (longestLabel - (isNarrow ? 12 : 16)) * (isNarrow ? 6 : 5))
+      );
       const margin = isNarrow
-        ? { top: 24, right: 16, bottom: 40, left: 100 }
-        : { top: 32, right: 24, bottom: 48, left: 140 };
-      const innerWidth = width - margin.left - margin.right;
-      const innerHeight = height - margin.top - margin.bottom;
+        ? { top: 24, right: 12, bottom: 38, left: baseLeft + extraLeft }
+        : { top: 30, right: 18, bottom: 44, left: baseLeft + extraLeft };
+      const innerWidth = Math.max(1, width - margin.left - margin.right);
+      const innerHeight = Math.max(1, height - margin.top - margin.bottom);
 
       const svg = d3
         .select(container)
         .append("svg")
-        .attr("width", width)
-        .attr("height", height)
+        // Make SVG truly responsive to container
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("width", "100%")
+        .attr("height", "100%")
         .attr("role", "img")
         .attr("aria-label", "Skill levels bar chart");
 
       const g = svg
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Define clip path to prevent overflowing grid/bars into margins
+      const clipId = `clip-${Math.random().toString(36).slice(2)}`;
+      svg
+        .append("clipPath")
+        .attr("id", clipId)
+        .append("rect")
+        .attr("x", margin.left)
+        .attr("y", margin.top)
+        .attr("width", innerWidth)
+        .attr("height", innerHeight);
 
       const x = d3.scaleLinear().domain([0, 100]).range([0, innerWidth]).nice();
       const y = d3
@@ -59,14 +86,16 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
         .domain([30, 60, 80])
         .range(["#ef4444", "#f59e0b", "#84cc16", "#22c55e"]);
 
-      // Grid
+      // Grid (clipped)
       g.append("g")
         .attr("class", "x-grid")
+        .attr("clip-path", `url(#${clipId})`)
         .call(
           d3
             .axisTop(x)
-            .ticks(Math.max(3, innerWidth / 140))
+            .ticks(Math.max(2, Math.floor(innerWidth / (isNarrow ? 180 : 140))))
             .tickSize(-innerHeight)
+            .tickPadding(isNarrow ? 4 : 6)
             .tickFormat((d) => `${+d}%`)
         )
         .call((g) =>
@@ -148,20 +177,22 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
         .each(function () {
           const self = d3.select(this);
           const text = self.text();
-          const limit = isNarrow ? 18 : 22;
+          const limit = isNarrow ? 14 : 20;
           if ((text?.length ?? 0) > limit) {
             self.text(text.slice(0, limit - 2) + "…");
           }
         })
         .style("filter", "drop-shadow(0 1px 1px rgba(0,0,0,0.5))");
 
-      // Bottom axis
+      // Bottom axis (reduce ticks and padding on narrow screens)
       g.append("g")
         .attr("transform", `translate(0,${innerHeight})`)
+        .attr("clip-path", `url(#${clipId})`)
         .call(
           d3
             .axisBottom(x)
-            .ticks(Math.max(3, innerWidth / 140))
+            .ticks(Math.max(2, Math.floor(innerWidth / (isNarrow ? 180 : 140))))
+            .tickPadding(isNarrow ? 4 : 6)
             .tickFormat((d) => `${+d}%`)
         )
         .call((g) =>
@@ -180,7 +211,7 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
         .attr("fill", "#ffffff")
         .attr("font-size", isNarrow ? 16 : 18)
         .attr("font-weight", 700)
-     
+        .text("Skills");
     };
 
     renderChart();

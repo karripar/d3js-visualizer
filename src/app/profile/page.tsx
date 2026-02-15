@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ResumeList from "@/components/ResumeList";
 import BackButton from "@/components/nav/BackButton";
+import useSupabase from "@/hooks/supabaseHooks";
 
 type Resume = {
   id: number;
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { deleteProfile } = useSupabase();
 
   useEffect(() => {
     const init = async () => {
@@ -78,6 +80,21 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const handleDelete = async (slug: string) => {
+    if (
+      confirm(
+        "Are you sure you want to delete this resume? This action cannot be undone."
+      )
+    ) {
+      const success = await deleteProfile(slug);
+      if (success) {
+        setResumes((prev) => prev.filter((r) => r.slug !== slug));
+      } else {
+        alert("Failed to delete resume. Please try again.");
+      }
+    }
   };
 
   return (
@@ -186,7 +203,9 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <ResumeList resumes={resumes} />
+            <ResumeList resumes={resumes}
+              onDelete={handleDelete}
+             />
           )}
         </section>
       </main>

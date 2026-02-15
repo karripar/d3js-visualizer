@@ -109,11 +109,28 @@ const useSupabase = () => {
     return data as Profile;
   };
 
+  const deleteProfile = async (slug: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("slug", slug)
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error deleting profile:", error);
+      return null;
+    }
+
+    return data as Profile;
+  };
+
   return {
     getProfile,
     createProfile,
     getUser,
     updateProfile,
+    deleteProfile,
   };
 };
 

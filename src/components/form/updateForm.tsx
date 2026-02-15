@@ -111,7 +111,7 @@ export default function UpdateForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 max-w-2xl mx-auto text-white"
+      className="space-y-6 mx-auto text-white w-full px-2 sm:px-4"
     >
       {/* Header */}
       <div>
@@ -294,7 +294,7 @@ export default function UpdateForm({
                 name="project_description"
                 value={proj.description ?? ""}
                 onChange={(e) => handleProjectChange(idx, e)}
-                className="mt-2 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                className="mt-2 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 max-h-75 resize-none"
                 rows={3}
               />
             </div>
@@ -351,7 +351,7 @@ export default function UpdateForm({
       <div className="mt-6 flex items-center gap-3">
         <button
           type="submit"
-          className="px-6 py-3 rounded-xl font-semibold text_white bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
+          className="px-6 py-3 rounded-xl font-semibold text-white bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
           disabled={saving}
         >
           {saving ? "Saving..." : "Save Changes"}
