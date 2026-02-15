@@ -7,17 +7,53 @@ CREATE TABLE profiles (
   github TEXT,
   linkedin TEXT,
   introduction TEXT,
+  projects JSONB,
+  user_id UUID UNIQUE NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT now()
 );
 
 CREATE INDEX idx_profiles_slug ON profiles(slug);
 
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public profiles readable"
-ON profiles FOR SELECT
-USING (true);
+ALTER POLICY "Allow users to update their own profile"
+ON "public"."profiles"
+to authenticated
+USING (
+  ((SELECT auth.uid() AS uid) = user_id)
+) WITH CHECK (
+  ((SELECT auth.uid() AS uid) = user_id)
+);
 
-CREATE POLICY "Public insert"
-ON profiles FOR INSERT
-WITH CHECK (true);
+
+ALTER POLICY "Enable delete for users based on user_id"
+ON "public"."profiles"
+to public
+USING (
+  (( SELECT auth.uid() AS uid) = user_id)
+) with check (
+  (( SELECT auth.uid() AS uid) = user_id)
+);
+
+
+ALTER POLICY "Profiles deny delete public"
+ON "public"."profiles"
+to public
+USING (
+  false
+);
+
+
+ALTER POLICY "Profiles insert public"
+ON "public"."profiles"
+to public
+USING CHECK (
+  true
+);
+
+
+ALTER POLICY "Profiles select public"
+ON "public"."profiles"
+to public
+USING (
+  true
+);
