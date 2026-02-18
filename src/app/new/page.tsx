@@ -11,16 +11,25 @@ export default function Home() {
   const [link, setLink] = useState("");
   const [user, setUser] = useState<null | { id: string }>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [profilesCount, setProfilesCount] = useState<number>(0);
 
-  const { createProfile, getUser } = useSupabase();
+  const { createProfile, getUser, getAllProfilesByUser } = useSupabase();
 
   useEffect(() => {
     let mounted = true; // to prevent state updates if component unmounts
     (async () => {
       try {
         const response = await getUser();
-        if (mounted)
-          setUser(response.data.user ? { id: response.data.user.id } : null);
+        const currentUser = response?.data?.user
+          ? { id: response.data.user.id }
+          : null;
+        if (mounted) setUser(currentUser);
+        if (mounted && currentUser) {
+          const list = await getAllProfilesByUser();
+          if (Array.isArray(list)) setProfilesCount(list.length);
+        }
+      } catch (err) {
+        console.error("Failed to check auth status:", err);
       } finally {
         if (mounted) setLoadingUser(false);
       }
@@ -28,9 +37,14 @@ export default function Home() {
     return () => {
       mounted = false;
     };
-  }, [getUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const MAX_PROFILES = 3;
+  const reachedLimit = profilesCount >= MAX_PROFILES;
 
   const handleFormSubmit = async (data: ProfileFormData) => {
+    if (reachedLimit || !user?.id) return; // guard
     const profile = await createProfile({
       user_id: user?.id ?? "", // Add user_id here
       name: data.name,
@@ -49,6 +63,8 @@ export default function Home() {
     });
     if (profile) {
       setLink(`${window.location.origin}/p/${profile.slug}`);
+      // update local count
+      setProfilesCount((c) => c + 1);
     }
   };
 
@@ -81,7 +97,23 @@ export default function Home() {
         </div>
       ) : (
         // Render the actual form to create profile
-        <ProfileForm onSubmit={handleFormSubmit} />
+        <>
+          {reachedLimit ? (
+            <div className="min-h-screen text-white p-10 max-w-2xl mx-auto mb-12">
+              <div className="rounded-2xl bg-amber-500/10 border border-amber-400/30 p-6 w-full">
+                <h2 className="text-lg font-semibold text-amber-200">
+                  Profile limit reached
+                </h2>
+                <p className="text-sm text-amber-200/80 mt-2">
+                  You’ve reached the maximum of {MAX_PROFILES} resumes. Delete
+                  an existing resume to create a new one.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <ProfileForm onSubmit={handleFormSubmit} />
+          )}
+        </>
       )}
 
       {/* Result */}

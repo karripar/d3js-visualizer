@@ -117,7 +117,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Chart below the card so it isn't behind the text */}
-        {data && (
+        { data?.skills && data.skills.length > 0 && (
           <div className="w-full max-w-2xl">
             <SkillChart skills={data.skills} />
           </div>

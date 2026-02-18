@@ -33,9 +33,7 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
   const [skills, setSkills] = useState<Skill[]>(
     initial?.skills ?? [{ name: "", level: 5 }]
   );
-  const [projects, setProjects] = useState<Project[]>([
-    { title: "", description: "", link: "", technologies: "" },
-  ]);
+  const [projects, setProjects] = useState<Project[]>(initial?.projects ?? []);
 
   const [github, setGithub] = useState(initial?.github ?? "");
   const [linkedIn, setLinkedIn] = useState(initial?.linkedin ?? "");
@@ -73,20 +71,31 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
 
   const handleSubmit = async () => {
     if (!name || !title) {
-      alert("Name and title are required");
+      // Avoid lazy alerts per UX; use inline disabled state instead.
       return;
     }
     setSubmitting(true);
     try {
+      // Filter out empty skills and projects before submit
+      const cleanedSkills = skills.filter((s) => s.name.trim() !== "");
+      const cleanedProjects = projects
+        .map((p) => ({
+          title: p.title?.trim() ?? "",
+          description: p.description?.trim() ?? "",
+          link: p.link?.trim() || "",
+          technologies: p.technologies?.trim() || "",
+        }))
+        .filter((p) => p.title !== "" && p.description !== "");
+
       await onSubmit({
         name,
         title,
-        skills,
+        skills: cleanedSkills,
         github: github || undefined,
         linkedin: linkedIn || undefined,
         personal_link: personalLink || undefined,
         introduction: introduction || undefined,
-        projects: projects.map((p) => ({
+        projects: cleanedProjects.map((p) => ({
           title: p.title,
           description: p.description,
           link: p.link || undefined,
@@ -104,7 +113,9 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
         Generate Your Visual CV
       </h1>
       <p className="mt-2 text-zinc-400">
-        Fill in your details to create a shareable visual professional profile. You can always update it later to keep it fresh and relevant. Focus on your strengths and let the visuals do the talking!
+        Fill in your details to create a shareable visual professional profile.
+        You can always update it later to keep it fresh and relevant. Focus on
+        your strengths and let the visuals do the talking!
       </p>
 
       {/* Basic Info */}
@@ -229,11 +240,21 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
       <div className="mt-10">
         <button
           onClick={handleSubmit}
-          disabled={submitting}
-          className="px-6 py-3 rounded-xl font-semibold text-white bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
+          disabled={submitting || !name.trim() || !title.trim()}
+          className="px-6 py-3 rounded-xl font-semibold text-white bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+          title={
+            !name.trim() || !title.trim()
+              ? "Fill in name and title to continue"
+              : undefined
+          }
         >
           {submitting ? "Generating..." : "Generate Profile"}
         </button>
+        {!name.trim() || !title.trim() ? (
+          <p className="mt-2 text-xs text-amber-200/80">
+            Name and professional title are required.
+          </p>
+        ) : null}
       </div>
     </div>
   );

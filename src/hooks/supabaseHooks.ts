@@ -11,6 +11,26 @@ const useSupabase = () => {
     return user;
   };
 
+  const getAllProfilesByUser = async () => {
+    const userResponse = await getUser();
+    if (!userResponse || !userResponse.data?.user) {
+      console.warn("No authenticated user found. Cannot fetch profiles.");
+      return [];
+    }
+
+    const userId = userResponse.data.user.id;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Error fetching profiles for user:", error);
+      return [];
+    }
+    return data as Profile[];
+  };
+
   // Fetch a profile by its slug. Use maybeSingle to avoid PGRST116 when there are 0 rows.
   const getProfile = async (slug: string) => {
     const { data, error } = await supabase
@@ -42,12 +62,20 @@ const useSupabase = () => {
       return null;
     }
 
+    // limit the number of profiles to 3 per user
+    const existingProfiles = await getAllProfilesByUser();
+    if (existingProfiles.length >= 3) {
+      console.warn("User has reached the maximum number of profiles (3).");
+      return null;
+    }
+
     const { data, error } = await supabase
       .from("profiles")
       .insert(profile)
       .select()
       .single();
     if (error) {
+      console.log("Supabase insert data:", data, "error:", error);
       console.error("Error creating profile:", error);
       return null;
     }
@@ -127,6 +155,7 @@ const useSupabase = () => {
 
   return {
     getProfile,
+    getAllProfilesByUser,
     createProfile,
     getUser,
     updateProfile,

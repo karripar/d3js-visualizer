@@ -28,6 +28,10 @@ export default function ProfilePage() {
   const router = useRouter();
   const { deleteProfile } = useSupabase();
 
+  // Max resume limit and derived state
+  const MAX_RESUMES = 3;
+  const hasReachedLimit = !!userId && resumes.length >= MAX_RESUMES;
+
   useEffect(() => {
     const init = async () => {
       const { data: userResult } = await supabase.auth.getUser();
@@ -138,12 +142,24 @@ export default function ProfilePage() {
                 Log out
               </button>
             ) : null}
-            <Link
-              href="/new"
-              className="px-3 py-2 sm:py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 border border-blue-400/40 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 w-full sm:w-auto"
-            >
-              Create new resume
-            </Link>
+            {/* Create button: disabled if limit reached */}
+            {hasReachedLimit ? (
+              <div
+                aria-disabled
+                className="px-3 py-2 sm:py-1.5 rounded-md border border-white/10 text-sm w-full sm:w-auto bg-white/5 text-zinc-400 cursor-not-allowed select-none flex items-center gap-2"
+                title={`Resume limit reached (${MAX_RESUMES}/${MAX_RESUMES})`}
+              >
+                <span className="i-lucide-ban">✕</span>
+                Limit reached ({resumes.length}/{MAX_RESUMES})
+              </div>
+            ) : (
+              <Link
+                href="/new"
+                className="px-3 py-2 sm:py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 border border-blue-400/40 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 w-full sm:w-auto"
+              >
+                Create new resume
+              </Link>
+            )}
           </div>
         </div>
         <div className="mt-3 sm:mt-4 h-px w-full bg-linear-to-r from-transparent via-white/10 to-transparent" />
@@ -155,14 +171,34 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm sm:text-lg text-zinc-300">Your resumes</h2>
             {/* Secondary create action in header for larger screens */}
-            <Link
-              href="/new"
-              className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-sm"
-            >
-              <span className="i-lucide-plus">+</span>
-              New
-            </Link>
+            {hasReachedLimit ? (
+              <div
+                aria-disabled
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 border border-white/10 text-sm text-zinc-400 cursor-not-allowed select-none"
+                title={`Resume limit reached (${MAX_RESUMES}/${MAX_RESUMES})`}
+              >
+                <span className="i-lucide-ban">✕</span>
+                Limit reached ({resumes.length}/{MAX_RESUMES})
+              </div>
+            ) : (
+              <Link
+                href="/new"
+                className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-sm"
+              >
+                <span className="i-lucide-plus">+</span>
+                New
+              </Link>
+            )}
           </div>
+
+          {/* Modern inline notice when limit is reached */}
+          {hasReachedLimit && (
+            <div className="mb-3 sm:mb-4 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-amber-200 text-xs sm:text-sm flex items-center gap-2">
+              <span className="i-lucide-info">ℹ</span>
+              You’ve reached the maximum of {MAX_RESUMES} resumes. Delete an
+              existing resume to create a new one.
+            </div>
+          )}
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -194,6 +230,7 @@ export default function ProfilePage() {
                   : "Sign in to view and create your resumes."}
               </p>
               <div className="mt-4">
+                {/* In empty state, allow creation if signed in */}
                 <Link
                   href={userId ? "/new" : "/"}
                   className="inline-flex w-full sm:w-auto justify-center px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-500 border border-blue-400/40 text-sm"
@@ -203,9 +240,7 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <ResumeList resumes={resumes}
-              onDelete={handleDelete}
-             />
+            <ResumeList resumes={resumes} onDelete={handleDelete} />
           )}
         </section>
       </main>
