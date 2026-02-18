@@ -13,6 +13,16 @@ export function TechBar() {
         </TechBadge>
         <TechBadge icon="/icons/D3.js.svg">D3.js</TechBadge>
       </div>
+      {/* Link to privacy policy */}
+      <div className="absolute top-1 left-3 text-[14px] text-zinc-500">
+        <a
+          href="/privacy"
+          className="underline hover:text-zinc-400 transition"
+        >
+          Privacy Policy
+        </a>
+      </div>
+
       {/* Creator credits */}
       <div className="absolute top-1 right-3 text-[14px] text-zinc-500">
         Created by{" "}
