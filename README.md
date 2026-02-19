@@ -90,6 +90,7 @@ See src/lib/supabase.ts and src/hooks/supabaseHooks.ts.
 - React 19 and Next 16 require up-to-date Node.js.
 - D3 charts should be rendered client-side ("use client").
 - Three.js is installed but optional; use for future 3D visuals.
+- Session storage is used to cache resumes to reduce Supabase storage API calls even though they are unlimited.
 
 ## License
 

@@ -22,7 +22,7 @@ export default function UpdateForm({
   }, [profile]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -233,6 +233,27 @@ export default function UpdateForm({
             placeholder="https://example.com"
           />
         </div>
+      </section>
+
+      { /* Color profile (optional) */}
+      <section>
+        <label
+          htmlFor="colorProfile"
+          className="block text-sm font-medium text-zinc-300"
+        >
+          Color Profile <span className="text-zinc-500">(optional)</span>
+        </label>
+        <select
+          id="colorProfile"
+          name="colorProfile"
+          value={form.colorProfile ?? "dark"}
+          onChange={handleChange}
+          className="mt-1 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        >
+          <option value="dark">Dark (default)</option>
+          <option value="light">Light</option>
+          
+        </select>
       </section>
 
       {/* Projects */}

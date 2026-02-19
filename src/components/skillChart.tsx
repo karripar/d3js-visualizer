@@ -9,7 +9,13 @@ interface Skill {
 }
 
 // Revamped D3.js chart replacing Three.js: responsive, accessible, and high-contrast.
-export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
+export default function SkillAmbient3D({
+  skills,
+  colorProfile,
+}: {
+  skills: Skill[];
+  colorProfile: string;
+}) {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,6 +24,21 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
 
     // Ensure container hides overflow on very small screens
     container.style.overflow = "hidden";
+
+    // Define color profiles for light and dark themes
+    const colorProfiles: Record<string, string[]> = {
+      light: ["#93c5fd", "#60a5fa", "#3b82f6", "#2563eb"], // Updated to pastel blue shades
+      dark: ["#ef4444", "#f59e0b", "#84cc16", "#22c55e"],
+    };
+
+    const backgroundColors: Record<string, string> = {
+      light: "#ffffff", // Updated to white background for light mode
+      dark: "#1e293b", // Dark background for dark mode
+    };
+
+    // Apply background color based on the theme
+    container.style.backgroundColor =
+      backgroundColors[colorProfile] || "#ffffff";
 
     // Render function for full redraw (responsive)
     const renderChart = () => {
@@ -81,10 +102,12 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
         .paddingInner(isNarrow ? 0.25 : 0.2)
         .paddingOuter(isNarrow ? 0.08 : 0.05);
 
+      const selectedColors = colorProfiles[colorProfile] || colorProfiles.dark;
+
       const color = d3
         .scaleThreshold<number, string>()
         .domain([30, 60, 80])
-        .range(["#ef4444", "#f59e0b", "#84cc16", "#22c55e"]);
+        .range(selectedColors);
 
       // Grid (clipped)
       g.append("g")
@@ -167,7 +190,7 @@ export default function SkillAmbient3D({ skills }: { skills: Skill[] }) {
         .attr("y", (d) => (y(d.name) ?? 0) + y.bandwidth() / 2)
         .attr("dy", "0.35em")
         .attr("text-anchor", "end")
-        .attr("fill", "#e5e7eb")
+        .attr("fill", { light: "#334155", dark: "#cbd5e1" }[colorProfile] || "#cbd5e1")
         .attr("font-weight", 600)
         .attr(
           "font-size",

@@ -60,6 +60,7 @@ export default function Home() {
         link: p.link,
         technologies: p.technologies,
       })),
+      colorProfile: data.colorProfile,
     });
     if (profile) {
       setLink(`${window.location.origin}/p/${profile.slug}`);
@@ -98,7 +99,7 @@ export default function Home() {
       ) : (
         // Render the actual form to create profile
         <>
-          {reachedLimit ? (
+          {reachedLimit && !link ? (
             <div className="min-h-screen text-white p-10 max-w-2xl mx-auto mb-12">
               <div className="rounded-2xl bg-amber-500/10 border border-amber-400/30 p-6 w-full">
                 <h2 className="text-lg font-semibold text-amber-200">

@@ -10,18 +10,35 @@ interface ProfileDataProps {
   linkedin?: string;
   personal_link?: string;
   projects?: Project[];
+  colorProfile: string; // added color profile to the type
 }
 
-const ProfileCard = ({ data }: { data: ProfileDataProps | null }) => {
+const ProfileCard = ({
+  data,
+  colorProfile,
+}: {
+  data: ProfileDataProps | null;
+  colorProfile: string;
+}) => {
   return (
     <>
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 max-w-2xl w-full shadow-xl text-white">
+      <div
+        className={`${
+          colorProfile === "light"
+            ? "bg-white text-black border-gray-300"
+            : "bg-white/5 text-white border-white/10"
+        } backdrop-blur-xl rounded-2xl p-8 max-w-2xl w-full shadow-xl`}
+      >
         {data ? (
           <>
             <h1 className="text-4xl font-bold tracking-tight">{data.name}</h1>
             <p className="text-lg text-blue-400 font-medium">{data.title}</p>
 
-            <p className="mt-4 text-zinc-300 leading-relaxed whitespace-pre-wrap">
+            <p
+              className={`"mt-4 leading-relaxed whitespace-pre-wrap" ${
+                colorProfile === "light" ? "text-gray-700" : "text-gray-300"
+              }`}
+            >
               {data.introduction || "No introduction provided."}
             </p>
 
@@ -41,7 +58,10 @@ const ProfileCard = ({ data }: { data: ProfileDataProps | null }) => {
                     height={24}
                     className="opacity-90 shrink-0"
                   />
-                  <span className="text-sm text-white truncate">GitHub</span>
+                  <span className={
+                    "text-sm truncate" + (colorProfile === "light" ? " text-gray-700" : " text-gray-300")
+                  }
+                  >GitHub</span>
                 </a>
               )}
 
@@ -60,7 +80,10 @@ const ProfileCard = ({ data }: { data: ProfileDataProps | null }) => {
                     height={24}
                     className="opacity-90 shrink-0"
                   />
-                  <span className="text-sm text-white truncate">LinkedIn</span>
+                  <span className={
+                    "text-sm truncate" + (colorProfile === "light" ? " text-gray-700" : " text-gray-300")
+                  }
+                  >LinkedIn</span>
                 </a>
               )}
 
@@ -73,7 +96,9 @@ const ProfileCard = ({ data }: { data: ProfileDataProps | null }) => {
                   title="Personal Website"
                 >
                   <User size={20} className="opacity-90 shrink-0" />
-                  <span className="text-sm text-white truncate">Website</span>
+                  <span className={
+                    "text-sm truncate" + (colorProfile === "light" ? " text-gray-700" : " text-gray-300")
+                  }>Website</span>
                 </a>
               )}
             </div>

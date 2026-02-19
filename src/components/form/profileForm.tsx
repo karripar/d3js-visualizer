@@ -20,6 +20,7 @@ export type ProfileFormData = {
   personal_link?: string;
   introduction?: string;
   projects?: Project[];
+  colorProfile?: string; // optional field for color profile
 };
 
 type ProfileFormProps = {
@@ -34,6 +35,10 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
     initial?.skills ?? [{ name: "", level: 5 }]
   );
   const [projects, setProjects] = useState<Project[]>(initial?.projects ?? []);
+
+  const [colorProfile, setColorProfile] = useState(
+    initial?.colorProfile ?? "blue"
+  );
 
   const [github, setGithub] = useState(initial?.github ?? "");
   const [linkedIn, setLinkedIn] = useState(initial?.linkedin ?? "");
@@ -101,6 +106,7 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
           link: p.link || undefined,
           technologies: p.technologies || undefined,
         })),
+        colorProfile,
       });
     } finally {
       setSubmitting(false);
@@ -200,6 +206,27 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
             onChange={(e) => setPersonalLink(e.target.value)}
           />
         </div>
+      </section>
+
+      {/* Color Profile */}
+      <section className="mt-8">
+        <label
+          htmlFor="color-profile"
+          className="block text-sm font-medium text-zinc-300"
+        >
+          Color profile        </label>
+          <p className="text-zinc-500 text-sm mt-1">
+            Choose a color scheme for your profile. The dark theme is great for a sleek, modern look, while the light theme offers a clean and classic feel. You can change this later to keep your profile fresh and aligned with your personal brand!
+          </p>
+        <select
+          id="color-profile"
+          className="mt-2 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          value={colorProfile}
+          onChange={(e) => setColorProfile(e.target.value)}
+        >
+          <option value="dark">Dark (default)</option>
+          <option value="light">Light</option>
+        </select>
       </section>
 
       {/* Introduction */}

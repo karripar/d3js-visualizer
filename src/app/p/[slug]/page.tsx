@@ -19,6 +19,7 @@ interface ProfileData {
   linkedin?: string;
   personal_link?: string;
   projects?: Project[];
+  colorProfile: string; // added color profile to the type
 }
 
 // Simple sessionStorage cache helpers
@@ -79,6 +80,7 @@ export default function ProfilePage() {
             linkedin: profile.linkedin || "",
             personal_link: profile.personal_link || "",
             projects: profile.projects || [],
+            colorProfile: profile.colorProfile || "dark",
           };
           setData(normalized);
           writeCache(slug, normalized);
@@ -98,11 +100,23 @@ export default function ProfilePage() {
   return (
     <main
       id="profile-card"
-      className="min-h-screen bg-zinc-950 relative overflow-hidden"
+      className={`min-h-screen relative overflow-hidden ${
+        data?.colorProfile === "light" ? "bg-zinc-50" : "bg-zinc-950"
+      }`}
     >
       {/* Glow blobs - smaller on mobile, larger on desktop */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 sm:w-120 sm:h-120 bg-blue-500/30 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 sm:w-120 sm:h-120 bg-purple-500/30 rounded-full blur-3xl" />
+      <div
+        className={`absolute -top-32 -left-32 w-96 h-96 sm:w-120 sm:h-120 rounded-full blur-3xl ${
+          data?.colorProfile === "light" ? "bg-blue-300/30" : "bg-blue-500/30"
+        }`}
+      />
+      <div
+        className={`absolute -bottom-32 -right-32 w-96 h-96 sm:w-120 sm:h-120 rounded-full blur-3xl ${
+          data?.colorProfile === "light"
+            ? "bg-purple-300/30"
+            : "bg-purple-500/30"
+        }`}
+      />
 
       {/* Content container with responsive spacing */}
       <div className="min-h-screen flex flex-col items-center justify-start px-3 sm:px-6 py-12 sm:py-16 relative z-10 gap-6 sm:gap-8">
@@ -113,13 +127,13 @@ export default function ProfilePage() {
 
         {/* Profile card */}
         <div className="w-full max-w-2xl">
-          <ProfileCard data={data} />
+          <ProfileCard data={data} colorProfile={data?.colorProfile || "dark"} />
         </div>
 
         {/* Chart below the card so it isn't behind the text */}
-        { data?.skills && data.skills.length > 0 && (
+        {data?.skills && data.skills.length > 0 && (
           <div className="w-full max-w-2xl">
-            <SkillChart skills={data.skills} />
+            <SkillChart skills={data.skills} colorProfile={data.colorProfile} />
           </div>
         )}
 

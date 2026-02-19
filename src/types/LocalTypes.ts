@@ -19,4 +19,5 @@ export type Profile = {
     personal_link?: string;
     projects?: Project[];
     created_at: string;
+    colorProfile?: string; // optional field for color profile
 }

@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         </p>
         <ul className="list-disc pl-6 text-zinc-300 space-y-1">
           <li>Supabase (authentication and database)</li>
-          <li>Hosting provider</li>
+          <li>Hosting provider (Vercel)</li>
         </ul>
         <p className="mt-2 text-zinc-300">
           These providers process data only as necessary to provide their
