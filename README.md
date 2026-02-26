@@ -207,8 +207,8 @@ If you use Supabase, add these to `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_OAUTH_CLIENT_ID`
 
-- Acquire the required Supabase credentials by creating a project at !(Supabase)[https://supabase.com/]
-- Additionally you need to create an Oauth client ID if you wish to use Google's authentication. See more at !(Google)[https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id/]
+- Acquire the required Supabase credentials by creating a project at [Supabase](https://supabase.com)
+- Additionally you need to create an Oauth client ID if you wish to use Google's authentication. See more at [Google](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id/)
 
 See:
 
