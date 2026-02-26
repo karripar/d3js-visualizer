@@ -26,7 +26,7 @@ interface ProfileData {
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const cacheKey = (slug: string) => `profile:${slug}`;
 
-function readCache(slug: string): ProfileData | null {
+const readCache = (slug: string): ProfileData | null => {
   try {
     if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem(cacheKey(slug));
@@ -40,7 +40,7 @@ function readCache(slug: string): ProfileData | null {
   }
 }
 
-function writeCache(slug: string, data: ProfileData): void {
+const writeCache = (slug: string, data: ProfileData): void  => {
   try {
     if (typeof window === "undefined") return;
     const payload = JSON.stringify({ data, ts: Date.now() });

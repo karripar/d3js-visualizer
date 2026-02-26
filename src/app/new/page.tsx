@@ -6,39 +6,31 @@ import { TechBar } from "@/components/BottomBar";
 import BackButton from "@/components/nav/BackButton";
 import GoogleLogin from "@/components/auth/GoogleLogin";
 import ProfileForm, { ProfileFormData } from "@/components/form/profileForm";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const [link, setLink] = useState("");
-  const [user, setUser] = useState<null | { id: string }>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
   const [profilesCount, setProfilesCount] = useState<number>(0);
 
-  const { createProfile, getUser, getAllProfilesByUser } = useSupabase();
+  const { createProfile, getAllProfilesByUser } = useSupabase();
+  const { user, loading: loadingUser } = useAuth();
 
   useEffect(() => {
-    let mounted = true; // to prevent state updates if component unmounts
+    let mounted = true;
     (async () => {
       try {
-        const response = await getUser();
-        const currentUser = response?.data?.user
-          ? { id: response.data.user.id }
-          : null;
-        if (mounted) setUser(currentUser);
-        if (mounted && currentUser) {
-          const list = await getAllProfilesByUser();
-          if (Array.isArray(list)) setProfilesCount(list.length);
-        }
+        // Only fetch profiles when we have an authenticated user
+        if (!user?.id) return;
+        const list = await getAllProfilesByUser();
+        if (mounted && Array.isArray(list)) setProfilesCount(list.length);
       } catch (err) {
-        console.error("Failed to check auth status:", err);
-      } finally {
-        if (mounted) setLoadingUser(false);
+        console.error("Failed to fetch profiles for user:", err);
       }
     })();
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user?.id, getAllProfilesByUser]);
 
   const MAX_PROFILES = 3;
   const reachedLimit = profilesCount >= MAX_PROFILES;
@@ -46,7 +38,7 @@ export default function Home() {
   const handleFormSubmit = async (data: ProfileFormData) => {
     if (reachedLimit || !user?.id) return; // guard
     const profile = await createProfile({
-      user_id: user?.id ?? "", // Add user_id here
+      user_id: user.id,
       name: data.name,
       title: data.title,
       skills: data.skills.map((s) => ({ name: s.name, level: s.level * 10 })),
@@ -64,7 +56,6 @@ export default function Home() {
     });
     if (profile) {
       setLink(`${window.location.origin}/p/${profile.slug}`);
-      // update local count
       setProfilesCount((c) => c + 1);
     }
   };
@@ -97,7 +88,6 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        // Render the actual form to create profile
         <>
           {reachedLimit && !link ? (
             <div className="min-h-screen text-white p-10 max-w-2xl mx-auto mb-12">
@@ -117,7 +107,6 @@ export default function Home() {
         </>
       )}
 
-      {/* Result */}
       {link && (
         <div className="mt-8 bg-zinc-900 border border-zinc-700 p-4 rounded-lg max-w-2xl mx-auto">
           <p className="text-sm text-zinc-400">Your profile link:</p>

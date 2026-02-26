@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import ResumeList from "@/components/ResumeList";
 import BackButton from "@/components/nav/BackButton";
 import useSupabase from "@/hooks/supabaseHooks";
+import { useAuth } from "@/hooks/useAuth";
 
 type Resume = {
   id: number;
@@ -20,37 +21,28 @@ type Resume = {
 };
 
 export default function ProfilePage() {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { deleteProfile } = useSupabase();
+  const { user } = useAuth();
+
+  const userEmail = user?.email ?? null;
+  const userId = user?.id ?? null;
+  const userAvatar =
+    typeof user?.user_metadata?.avatar_url === "string"
+      ? (user.user_metadata.avatar_url as string)
+      : typeof user?.user_metadata?.picture === "string"
+      ? (user.user_metadata.picture as string)
+      : null;
 
   // Max resume limit and derived state
   const MAX_RESUMES = 3;
   const hasReachedLimit = !!userId && resumes.length >= MAX_RESUMES;
 
   useEffect(() => {
-    const init = async () => {
-      const { data: userResult } = await supabase.auth.getUser();
-      const u = userResult.user ?? null;
-      setUserEmail(u?.email ?? null);
-      setUserId(u?.id ?? null);
-      // Try common metadata keys used by OAuth providers (e.g., Google)
-      const meta: Record<string, unknown> | undefined = u?.user_metadata as
-        | Record<string, unknown>
-        | undefined;
-      const avatar =
-        typeof meta?.avatar_url === "string"
-          ? (meta.avatar_url as string)
-          : typeof meta?.picture === "string"
-          ? (meta.picture as string)
-          : null;
-      setUserAvatar(avatar);
-
-      if (!u) {
+    const fetchResumes = async () => {
+      if (!userId) {
         setResumes([]);
         setLoading(false);
         return;
@@ -59,7 +51,7 @@ export default function ProfilePage() {
       const { data, error } = await supabase
         .from("profiles")
         .select("id,name,title,slug,user_id,created_at")
-        .eq("user_id", u.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -71,15 +63,8 @@ export default function ProfilePage() {
       setLoading(false);
     };
 
-    init();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
-      init();
-    });
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
+    fetchResumes();
+  }, [userId]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
