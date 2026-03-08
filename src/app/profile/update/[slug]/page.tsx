@@ -8,6 +8,19 @@ import BackButton from "@/components/nav/BackButton";
 import { TechBar } from "@/components/BottomBar";
 import { useParams } from "next/navigation";
 
+// Keep cache key helpers in sync with the public profile page (/app/p/[slug]/page.tsx)
+const cacheKey = (slug: string) => `profile:${slug}`;
+
+const writeCache = (slug: string, data: Profile): void => {
+  try {
+    if (typeof window === "undefined") return;
+    const payload = JSON.stringify({ data, ts: Date.now() });
+    sessionStorage.setItem(cacheKey(slug), payload);
+  } catch {
+    // ignore cache errors so they don't block the update flow
+  }
+};
+
 export default function UpdateProfilePage() {
   const { slug } = useParams<{ slug: string }>();
   const { getProfile, updateProfile } = useSupabase();
@@ -36,6 +49,24 @@ export default function UpdateProfilePage() {
       const { ...updates } = updated;
       await updateProfile(slug, updates);
       console.log("Profile updated", { slug });
+
+      // Update sessionStorage cache used by /p/[slug]
+      // This keeps the public profile page in sync after edits.
+      writeCache(slug, {
+        name: updated.name,
+        title: updated.title,
+        skills: updated.skills,
+        introduction: updated.introduction || "",
+        github: updated.github || "",
+        linkedin: updated.linkedin || "",
+        personal_link: updated.personal_link || "",
+        projects: updated.projects || [],
+        colorProfile: updated.colorProfile || "dark",
+        id: "",
+        user_id: "",
+        slug: "",
+        created_at: ""
+      });
 
       // redirect to the profile page after successful update
       window.location.href = `/profile`;

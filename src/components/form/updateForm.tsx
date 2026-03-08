@@ -377,6 +377,7 @@ export default function UpdateForm({
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
+        
         {onCancel && (
           <button
             type="button"
@@ -386,6 +387,7 @@ export default function UpdateForm({
             Cancel
           </button>
         )}
+        
       </div>
     </form>
   );

@@ -142,7 +142,7 @@ export default function ProfilePage() {
           data.projects.length > 0 &&
           data.projects.map((project, index) => (
             <div key={index} className="w-full max-w-2xl">
-              <ProjectsCard project={project} />
+              <ProjectsCard project={project} colorProfile={data.colorProfile} />
             </div>
           ))}
       </div>
