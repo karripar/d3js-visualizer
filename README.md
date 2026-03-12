@@ -4,13 +4,14 @@ A modern **Next.js** app to build and share a visual professional profile. Users
 
 ---
 
-##  Core Features
+## Core Features
 
-- **Landing page** with CTA and demo profile
+- **Landing page** with CTA and demo profile (`/`)
 - **Profile creator** at `/new` with:
   - Personal info, role, summary
   - Projects and highlights
   - Up to **8 skills** with 1–10 ratings
+  - Up to **3 job experiences**
 - **Public profile pages** at `/p/[slug]`
   - Shareable URL
   - Responsive layout
@@ -19,6 +20,8 @@ A modern **Next.js** app to build and share a visual professional profile. Users
   - List your created resumes
   - Create, update, and delete profiles
   - Simple quota logic (e.g. max 3 resumes per user)
+- **Profile editor** at `/profile/update/[slug]`
+  - Update existing profiles without re‑creating them
 - **Authentication (optional)**
   - Google sign-in via Supabase
   - Centralized `AuthContext` + `useAuth` hook
@@ -30,17 +33,18 @@ A modern **Next.js** app to build and share a visual professional profile. Users
 
 ---
 
-##  Architecture Overview
+## Architecture Overview
 
 ### App Router Structure
 
+- `src/app/layout.tsx` – Root layout and global providers
 - `src/app/page.tsx` – Landing page
 - `src/app/new/page.tsx` – Create profile
 - `src/app/p/[slug]/page.tsx` – Public profile page
 - `src/app/profile/page.tsx` – Profile dashboard (list + actions)
 - `src/app/profile/update/[slug]/page.tsx` – Update existing profile
 - `src/app/login/page.tsx` – Login / auth entry
-- `src/app/layout.tsx` – Root layout and global providers
+- `src/app/privacy/page.tsx` – Privacy policy page
 
 ### Key Modules
 
@@ -51,8 +55,7 @@ A modern **Next.js** app to build and share a visual professional profile. Users
     - Listens for `onAuthStateChange` events
     - Exposes `user`, `session`, and basic auth helpers
   - `src/hooks/useAuth.tsx`
-    - Thin wrapper: `export function useAuth() { return useAuthContext(); }`
-    - Used in pages like `/profile` to access current user without re-querying Supabase.
+    - Thin wrapper around the context so components can call `useAuth()`
 
 - **Supabase Client & Data Hooks**
 
@@ -68,21 +71,21 @@ A modern **Next.js** app to build and share a visual professional profile. Users
 
 - **UI & Forms**
 
-  - `components/form/profileForm.tsx` – Main create form
-  - `components/form/updateForm.tsx` – Edit form
-  - `components/form/Projects.tsx`, `components/form/Skills.tsx` – Form sections
-  - `components/profile/ProfileCard.tsx`, `ProjectsCard.tsx` – Public profile layout
-  - `components/skillChart.tsx` – D3-based skill visualization
+  - `src/components/form/profileForm.tsx` – Main create form
+  - `src/components/form/updateForm.tsx` – Edit form
+  - `src/components/form/Projects.tsx`, `src/components/form/Skills.tsx` – Form sections
+  - `src/components/profile/ProfileCard.tsx`, `src/components/profile/ProjectsCard.tsx` – Public profile layout
+  - `src/components/d3/skillChart.tsx`, `src/components/d3/ExperiencesChart.tsx`, `src/components/d3/ProfileCount.tsx` – D3-based visualizations
 
 - **Navigation & Layout**
-  - `components/nav/UniversalNav.tsx` – Top navigation
-  - `components/nav/AuthTab.tsx` – Login/account entry
-  - `components/nav/BackButton.tsx` – Consistent back navigation
-  - `components/BottomBar.tsx` – Tech stack icon bar
+  - `src/components/nav/UniversalNav.tsx` – Top navigation
+  - `src/components/nav/AuthTab.tsx` – Login/account entry
+  - `src/components/nav/BackButton.tsx` – Consistent back navigation
+  - `src/components/BottomBar.tsx` – Tech stack icon bar
 
 ---
 
-##  Authentication & Authorization
+## Authentication & Authorization
 
 Authentication is **optional but integrated**. When enabled:
 
@@ -105,7 +108,7 @@ if (!user) {
 
 ### Auth UI
 
-- `components/auth/GoogleLogin.tsx`
+- `src/components/auth/GoogleLogin.tsx`
   - Renders a button linked to Supabase Google OAuth.
   - Typically used on `/login` or embedded in the landing page.
 
@@ -118,7 +121,7 @@ if (!user) {
 
 ---
 
-##  Supabase Data Model
+## Supabase Data Model
 
 Supabase is used as a hosted Postgres backend. The schema is defined in:
 
@@ -140,39 +143,47 @@ Data operations are funneled through:
   - `getProfileBySlug`
   - `updateProfile`
   - `deleteProfile`
-- Pages like `/new`, `/profile`, `/profile/update/[slug]` consume these hooks for a thin UI layer.
 
-Session storage is also used to **cache resumes locally**, reducing Supabase reads, even though the API quota is generous.
+Session storage is also used to **cache resumes locally**, reducing Supabase reads.
 
 ---
 
-##  D3 Skill Visualization
+## D3 Skill Visualization
 
-- `components/skillChart.tsx` is a client-only component (`"use client"`).
+- `src/components/d3/skillChart.tsx` is a client-only component (`"use client"`).
 - Receives normalized skill data and renders a chart using **D3.js**.
 - Integrated into public profile pages so visitors see a quick visual of strengths.
 
-You can extend this chart with:
+Additional D3 components:
+
+- `src/components/d3/ExperiencesChart.tsx` – visualize experience distribution
+- `src/components/d3/ProfileCount.tsx` – simple count/metric display
+
+You can extend these charts with:
 
 - Animations or transitions
 - Different chart types (radar, bar, etc.)
 - Tooltips on hover
+- Three.js overlays for 3D visuals (optional)
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
-- **Next.js 16**, **React 19** (App Router)
-- **TypeScript**
-- **Tailwind CSS v4** (via PostCSS)
-- **D3.js** for charts
-- **Three.js** (installed, optional for 3D visuals)
-- **Supabase JS SDK**
-- **ESLint 9**
+Based on `package.json`:
+
+- **Next.js 16.1.x** (App Router)
+- **React 19.2.x**
+- **TypeScript 5.x**
+- **Tailwind CSS v4** (via `@tailwindcss/postcss` + PostCSS pipeline)
+- **D3.js 7.x** for charts
+- **Three.js 0.182.x** (installed, optional for 3D visuals)
+- **Supabase JS SDK 2.x** (`@supabase/supabase-js`, `@supabase/ssr`)
+- **ESLint 9** + `eslint-config-next`
 
 ---
 
-##  Getting Started
+## Getting Started
 
 1. **Install dependencies**
 
@@ -190,16 +201,16 @@ You can extend this chart with:
 
 ---
 
-##  NPM Scripts
+## NPM Scripts
 
 - `npm run dev` – Start Next.js in development
 - `npm run build` – Production build
 - `npm run start` – Start production server
-- `npm run lint` – Run ESLint
+- `npm run lint` – Run ESLint via the flat config
 
 ---
 
-##  Environment Variables
+## Environment Variables
 
 If you use Supabase, add these to `.env.local`:
 
@@ -207,8 +218,10 @@ If you use Supabase, add these to `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_OAUTH_CLIENT_ID`
 
-- Acquire the required Supabase credentials by creating a project at [Supabase](https://supabase.com)
-- Additionally you need to create an OAuth client ID if you wish to use Google's authentication. See more at [Google](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id/)
+How to get them:
+
+- Create a project at [Supabase](https://supabase.com) and copy the project URL and anon key.
+- Create an OAuth client ID if you wish to use Google authentication. See [Google docs](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid#get_your_google_api_client_id/).
 
 See:
 
@@ -218,28 +231,28 @@ See:
 
 ---
 
-##  Project Structure (simplified)
+## Project Structure (simplified)
 
 - `public/` – Static assets and icons
 - `src/app/` – Next.js App Router pages and layout
-- `src/components/` – UI components and charts
+- `src/components/` – UI components, navigation, and D3 charts
 - `src/context/` – AuthContext provider
 - `src/hooks/` – Auth and Supabase hooks
 - `src/lib/` – Supabase client
 - `src/types/` – Local TypeScript types
-- `supabase/` – Database schema
+- `supabase/` – Database schema and SQL
 
 ---
 
-##  Notes
+## Notes
 
-- React 19 and Next 16 require a recent Node.js version.
+- React 19 and Next 16 require a recent Node.js version (LTS recommended).
 - D3 charts must be rendered client-side (`"use client"`).
 - Three.js is available for future 3D features but not required.
-- For the reason of limited storage capacity, setting a custom profile picture is not possible. The one provided by Google's authentication response is used instead.
+- For storage reasons, custom profile picture uploads are not supported; the Google-auth avatar is used when available.
 
 ---
 
-##  License
+## License
 
 Proprietary. Do not distribute without permission.
