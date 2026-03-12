@@ -1,7 +1,7 @@
-// filepath: c:\Users\karri\WebDev\new-tech\d3js-visualizer\src\components\form\updateForm.tsx
 import React, { useEffect, useState } from "react";
 import type { Profile } from "@/types/LocalTypes";
 import Skills from "./Skills";
+import type { JobExperience } from "@/types/LocalTypes";
 
 type UpdateFormProps = {
   profile: Profile;
@@ -22,7 +22,9 @@ export default function UpdateForm({
   }, [profile]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -98,11 +100,102 @@ export default function UpdateForm({
     });
   };
 
+  // Job experience handlers (max 3 positions)
+  const addExperience = () => {
+    setForm((prev) => {
+      const current = prev.experiences ?? [];
+      if (current.length >= 3) return prev; // enforce max of three
+      return {
+        ...prev,
+        experiences: [
+          ...current,
+          {
+            company: "",
+            role: "",
+            startDate: "",
+            endDate: "",
+            description: "",
+          },
+        ],
+      };
+    });
+  };
+
+  const removeExperience = (index: number) => {
+    setForm((prev) => {
+      const current = [...(prev.experiences ?? [])];
+      current.splice(index, 1);
+      return { ...prev, experiences: current };
+    });
+  };
+
+  const updateExperience = (
+    index: number,
+    key: keyof JobExperience,
+    value: string
+  ) => {
+    setForm((prev) => {
+      const current = [...(prev.experiences ?? [])];
+      const base: JobExperience = {
+        company: "",
+        role: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+      };
+      const exp = {
+        ...base,
+        ...(current[index] ?? {}),
+      } as JobExperience;
+      exp[key] = value as never;
+      current[index] = exp;
+      return { ...prev, experiences: current };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      onSave?.(form);
+      // Clean projects similar to ProfileForm
+      const cleanedProjects = (form.projects ?? [])
+        .map((p) => ({
+          title: p.title?.trim() ?? "",
+          description: p.description?.trim() ?? "",
+          link: p.link?.trim() || "",
+          technologies: p.technologies?.trim() || "",
+        }))
+        .filter((p) => p.title !== "" && p.description !== "");
+
+      // Clean skills: keep only those with non-empty name
+      const cleanedSkills = (form.skills ?? []).filter(
+        (s) => (s.name ?? "").trim() !== ""
+      );
+
+      // Clean experiences: keep only those with company & role
+      const cleanedExperiences = (form.experiences ?? [])
+        .map((e) => ({
+          company: e.company?.trim() ?? "",
+          role: e.role?.trim() ?? "",
+          startDate: e.startDate?.trim() ?? "",
+          endDate: e.endDate?.trim() ?? "",
+          description: e.description?.trim() || "",
+        }))
+        .filter((e) => e.company !== "" && e.role !== "");
+
+      const trimmed: Profile = {
+        ...form,
+        projects: cleanedProjects.map((p) => ({
+          title: p.title,
+          description: p.description,
+          link: p.link || undefined,
+          technologies: p.technologies || undefined,
+        })),
+        skills: cleanedSkills,
+        experiences: cleanedExperiences as JobExperience[],
+      };
+
+      onSave?.(trimmed);
     } finally {
       setSaving(false);
     }
@@ -235,7 +328,7 @@ export default function UpdateForm({
         </div>
       </section>
 
-      { /* Color profile (optional) */}
+      {/* Color profile (optional) */}
       <section>
         <label
           htmlFor="colorProfile"
@@ -252,8 +345,145 @@ export default function UpdateForm({
         >
           <option value="dark">Dark (default)</option>
           <option value="light">Light</option>
-          
         </select>
+      </section>
+
+      {/* Job Experience (max 3 positions) */}
+      <section className="mt-4">
+        <div className="flex items-baseline justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-100">
+              Job experience
+            </h2>
+            <p className="text-zinc-500 text-sm">
+              Add up to three of your most relevant roles.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addExperience}
+            disabled={(form.experiences?.length ?? 0) >= 3}
+            className="text-xs px-3 py-1 rounded-full border border-zinc-600 text-zinc-200 hover:border-indigo-400 hover:text-indigo-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Add position ({form.experiences?.length ?? 0}/3)
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-6">
+          {(
+            form.experiences ?? [
+              {
+                company: "",
+                role: "",
+                startDate: "",
+                endDate: "",
+                description: "",
+              },
+            ]
+          ).map((exp, index) => (
+            <div
+              key={index}
+              className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-4 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-zinc-200">
+                  Position {index + 1}
+                </h3>
+                {(form.experiences?.length ?? 0) > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeExperience(index)}
+                    className="text-xs text-red-300 hover:text-red-200"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Company
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Acme Corp"
+                    value={exp.company ?? ""}
+                    onChange={(e) =>
+                      updateExperience(index, "company", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Role / Position
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Frontend Developer"
+                    value={exp.role ?? ""}
+                    onChange={(e) =>
+                      updateExperience(index, "role", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Start date
+                  </label>
+                  <input
+                    type="month"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Jan 2023"
+                    value={exp.startDate ?? ""}
+                    onChange={(e) =>
+                      updateExperience(index, "startDate", e.target.value)
+                    }
+                  />
+                  <p className="mt-1 text-[10px] text-zinc-500">
+                    Select month and year (e.g., 2023-03)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    End date
+                  </label>
+                  <input
+                    type="month"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Present"
+                    value={exp.endDate ?? ""}
+                    onChange={(e) =>
+                      updateExperience(index, "endDate", e.target.value)
+                    }
+                  />
+                  <p className="mt-1 text-[10px] text-zinc-500">
+                    Leave empty if currently employed, or select month and year
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-400">
+                  Summary (optional)
+                </label>
+                <textarea
+                  className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg resize-none h-20 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="Key responsibilities, impact, and technologies used..."
+                  value={exp.description ?? ""}
+                  onChange={(e) =>
+                    updateExperience(index, "description", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Projects */}
@@ -377,7 +607,7 @@ export default function UpdateForm({
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
-        
+
         {onCancel && (
           <button
             type="button"
@@ -387,7 +617,6 @@ export default function UpdateForm({
             Cancel
           </button>
         )}
-        
       </div>
     </form>
   );

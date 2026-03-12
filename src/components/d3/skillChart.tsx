@@ -18,6 +18,8 @@ export default function SkillAmbient3D({
 }) {
   const mountRef = useRef<HTMLDivElement>(null);
 
+  console.log(colorProfile);
+
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;

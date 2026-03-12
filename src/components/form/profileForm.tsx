@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Skills from "./Skills";
 import Projects from "./Projects";
+import { JobExperience } from "@/types/LocalTypes";
 
 export type Skill = { name: string; level: number };
 export type Project = {
@@ -11,6 +12,7 @@ export type Project = {
   link?: string;
   technologies?: string; // comma-separated list
 };
+
 export type ProfileFormData = {
   name: string;
   title: string;
@@ -21,6 +23,8 @@ export type ProfileFormData = {
   introduction?: string;
   projects?: Project[];
   colorProfile?: string; // optional field for color profile
+  // New field for job experiences
+  experiences?: JobExperience[];
 };
 
 type ProfileFormProps = {
@@ -36,8 +40,21 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
   );
   const [projects, setProjects] = useState<Project[]>(initial?.projects ?? []);
 
+  // New state for job experiences (max 3 positions)
+  const [experiences, setExperiences] = useState<JobExperience[]>(
+    initial?.experiences ?? [
+      {
+        company: "",
+        role: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+      },
+    ]
+  );
+
   const [colorProfile, setColorProfile] = useState(
-    initial?.colorProfile ?? "blue"
+    initial?.colorProfile ?? "dark"
   );
 
   const [github, setGithub] = useState(initial?.github ?? "");
@@ -63,6 +80,31 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
     setProjects((p) =>
       p.map((proj, idx) => (idx === i ? { ...proj, [key]: value } : proj))
     );
+
+  // New helpers for experiences
+  const addExperience = () => {
+    setExperiences((prev) => {
+      if (prev.length >= 3) return prev; // enforce max of three
+      return [
+        ...prev,
+        { company: "", role: "", startDate: "", endDate: "", description: "" },
+      ];
+    });
+  };
+
+  const removeExperience = (i: number) => {
+    setExperiences((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  const updateExperience = (
+    i: number,
+    key: keyof JobExperience,
+    value: string
+  ) => {
+    setExperiences((prev) =>
+      prev.map((exp, idx) => (idx === i ? { ...exp, [key]: value } : exp))
+    );
+  };
 
   const updateSkill = (
     i: number,
@@ -92,6 +134,17 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
         }))
         .filter((p) => p.title !== "" && p.description !== "");
 
+      // Clean experiences: keep only those with company & role
+      const cleanedExperiences = experiences
+        .map((e) => ({
+          company: e.company?.trim() ?? "",
+          role: e.role?.trim() ?? "",
+          startDate: e.startDate?.trim() ?? "",
+          endDate: e.endDate?.trim() ?? "",
+          description: e.description?.trim() || "",
+        }))
+        .filter((e) => e.company !== "" && e.role !== "");
+
       await onSubmit({
         name,
         title,
@@ -107,6 +160,7 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
           technologies: p.technologies || undefined,
         })),
         colorProfile,
+        experiences: cleanedExperiences.length ? cleanedExperiences : undefined,
       });
     } finally {
       setSubmitting(false);
@@ -214,10 +268,14 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
           htmlFor="color-profile"
           className="block text-sm font-medium text-zinc-300"
         >
-          Color profile        </label>
-          <p className="text-zinc-500 text-sm mt-1">
-            Choose a color scheme for your profile. The dark theme is great for a sleek, modern look, while the light theme offers a clean and classic feel. You can change this later to keep your profile fresh and aligned with your personal brand!
-          </p>
+          Color profile{" "}
+        </label>
+        <p className="text-zinc-500 text-sm mt-1">
+          Choose a color scheme for your profile. The dark theme is great for a
+          sleek, modern look, while the light theme offers a clean and classic
+          feel. You can change this later to keep your profile fresh and aligned
+          with your personal brand!
+        </p>
         <select
           id="color-profile"
           className="mt-2 w-full p-3 bg-zinc-900 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
@@ -246,6 +304,132 @@ export default function ProfileForm({ initial, onSubmit }: ProfileFormProps) {
           value={introduction}
           onChange={(e) => setIntroduction(e.target.value)}
         />
+      </section>
+
+      {/* Job Experience (max 3 positions) */}
+      <section className="mt-8">
+        <div className="flex items-baseline justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-100">
+              Job experience
+            </h2>
+            <p className="text-zinc-500 text-sm">
+              Add up to three of your most relevant roles.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addExperience}
+            disabled={experiences.length >= 3}
+            className="text-xs px-3 py-1 rounded-full border border-zinc-600 text-zinc-200 hover:border-indigo-400 hover:text-indigo-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Add position ({experiences.length}/3)
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-6">
+          {experiences.map((exp, index) => (
+            <div
+              key={index}
+              className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-4 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-zinc-200">
+                  Position {index + 1}
+                </h3>
+                {experiences.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeExperience(index)}
+                    className="text-xs text-red-300 hover:text-red-200"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Company
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Acme Corp"
+                    value={exp.company}
+                    onChange={(e) =>
+                      updateExperience(index, "company", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Role / Position
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Frontend Developer"
+                    value={exp.role}
+                    onChange={(e) =>
+                      updateExperience(index, "role", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    Start date
+                  </label>
+                  <input
+                    type="month"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    value={exp.startDate}
+                    onChange={(e) =>
+                      updateExperience(index, "startDate", e.target.value)
+                    }
+                  />
+                  <p className="mt-1 text-[10px] text-zinc-500">
+                    Select month and year (e.g., Mar 2023)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-400">
+                    End date
+                  </label>
+                  <input
+                    type="month"
+                    className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    value={exp.endDate}
+                    onChange={(e) =>
+                      updateExperience(index, "endDate", e.target.value)
+                    }
+                  />
+                  <p className="mt-1 text-[10px] text-zinc-500">
+                    Leave empty if currently employed, or select month and year
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-400">
+                  Summary (optional)
+                </label>
+                <textarea
+                  className="mt-1 w-full p-2 text-sm bg-zinc-950 border border-zinc-700 rounded-lg resize-none h-20 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="Key responsibilities, impact, and technologies used..."
+                  value={exp.description ?? ""}
+                  onChange={(e) =>
+                    updateExperience(index, "description", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Skills */}

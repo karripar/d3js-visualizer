@@ -1,8 +1,18 @@
+
 export type Project = {
     title: string;
     description: string;
     link?: string;
     technologies?: string;
+}
+
+
+export type JobExperience = {
+    company: string;
+    role: string;
+    startDate: string;
+    endDate: string;
+    description?: string;
 }
 
 
@@ -20,4 +30,5 @@ export type Profile = {
     projects?: Project[];
     created_at: string;
     colorProfile?: string; // optional field for color profile
+    experiences: JobExperience[]; // added experience field
 }

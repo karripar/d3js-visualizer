@@ -62,6 +62,7 @@ export default function UpdateProfilePage() {
         personal_link: updated.personal_link || "",
         projects: updated.projects || [],
         colorProfile: updated.colorProfile || "dark",
+        experiences: updated.experiences || [],
         id: "",
         user_id: "",
         slug: "",

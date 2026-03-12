@@ -1,6 +1,6 @@
 "use client";
 
-import SkillChart from "@/components/skillChart";
+import SkillChart from "@/components/d3/skillChart";
 import useSupabase from "@/hooks/supabaseHooks";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -9,6 +9,8 @@ import BackButton from "@/components/nav/BackButton";
 import ProfileCard from "@/components/profile/ProfileCard";
 import ProjectsCard from "@/components/profile/ProjectsCard";
 import { Project } from "@/types/LocalTypes";
+import { JobExperience } from "@/types/LocalTypes";
+import ExperiencesChart from "@/components/d3/ExperiencesChart";
 
 interface ProfileData {
   name: string;
@@ -20,6 +22,7 @@ interface ProfileData {
   personal_link?: string;
   projects?: Project[];
   colorProfile: string; // added color profile to the type
+  experiences: JobExperience[]; // added experiences to the type
 }
 
 // Simple sessionStorage cache helpers
@@ -38,9 +41,9 @@ const readCache = (slug: string): ProfileData | null => {
   } catch {
     return null;
   }
-}
+};
 
-const writeCache = (slug: string, data: ProfileData): void  => {
+const writeCache = (slug: string, data: ProfileData): void => {
   try {
     if (typeof window === "undefined") return;
     const payload = JSON.stringify({ data, ts: Date.now() });
@@ -48,7 +51,7 @@ const writeCache = (slug: string, data: ProfileData): void  => {
   } catch {
     // ignore
   }
-}
+};
 
 export default function ProfilePage() {
   const { getProfile } = useSupabase();
@@ -81,6 +84,7 @@ export default function ProfilePage() {
             personal_link: profile.personal_link || "",
             projects: profile.projects || [],
             colorProfile: profile.colorProfile || "dark",
+            experiences: profile.experiences || [],
           };
           setData(normalized);
           writeCache(slug, normalized);
@@ -127,8 +131,21 @@ export default function ProfilePage() {
 
         {/* Profile card */}
         <div className="w-full max-w-2xl">
-          <ProfileCard data={data} colorProfile={data?.colorProfile || "dark"} />
+          <ProfileCard
+            data={data}
+            colorProfile={data?.colorProfile || "dark"}
+          />
         </div>
+
+        {/* Experiences chart */}
+        {data?.experiences && data.experiences.length > 0 && (
+          <div className="w-full max-w-2xl overflow-visible">
+            <ExperiencesChart
+              experiences={data.experiences}
+              colorProfile={data.colorProfile as "dark" | "light"}
+            />
+          </div>
+        )}
 
         {/* Chart below the card so it isn't behind the text */}
         {data?.skills && data.skills.length > 0 && (
@@ -142,7 +159,10 @@ export default function ProfilePage() {
           data.projects.length > 0 &&
           data.projects.map((project, index) => (
             <div key={index} className="w-full max-w-2xl">
-              <ProjectsCard project={project} colorProfile={data.colorProfile} />
+              <ProjectsCard
+                project={project}
+                colorProfile={data.colorProfile}
+              />
             </div>
           ))}
       </div>

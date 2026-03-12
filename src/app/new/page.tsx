@@ -53,6 +53,13 @@ export default function Home() {
         technologies: p.technologies,
       })),
       colorProfile: data.colorProfile,
+      experiences: data.experiences?.map((e) => ({
+        company: e.company,
+        role: e.role,
+        startDate: e.startDate,
+        endDate: e.endDate,
+        description: e.description,
+      })) || []
     });
     if (profile) {
       setLink(`${window.location.origin}/p/${profile.slug}`);

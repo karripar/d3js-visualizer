@@ -153,6 +153,21 @@ const useSupabase = () => {
     return data as Profile;
   };
 
+
+  // get number of profiles who have created a resume
+  const getTotalProfilesCount = async () => {
+    const { count, error } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+
+    if (error) {
+      console.error("Error counting profiles:", error);
+      return 0;
+    }
+
+    return count ?? 0;
+  };
+
   return {
     getProfile,
     getAllProfilesByUser,
@@ -160,6 +175,7 @@ const useSupabase = () => {
     getUser,
     updateProfile,
     deleteProfile,
+    getTotalProfilesCount
   };
 };
 

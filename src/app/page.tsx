@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { TechBar } from "@/components/BottomBar";
+import ProfileCount from "@/components/d3/ProfileCount";
 
 export default function LandingPage() {
   return (
@@ -53,6 +54,10 @@ export default function LandingPage() {
             View a demo
           </Link>
         </div>
+        <div className="mt-12">
+          <ProfileCount />
+        </div>
+
       </section>
 
       {/* features */}

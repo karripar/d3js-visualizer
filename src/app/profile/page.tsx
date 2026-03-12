@@ -29,12 +29,16 @@ export default function ProfilePage() {
 
   const userEmail = user?.email ?? null;
   const userId = user?.id ?? null;
-  const userAvatar =
-    typeof user?.user_metadata?.avatar_url === "string"
-      ? (user.user_metadata.avatar_url as string)
-      : typeof user?.user_metadata?.picture === "string"
-      ? (user.user_metadata.picture as string)
-      : null;
+
+  const rawMeta = (user?.user_metadata ?? {}) as Record<string, unknown>;
+  const userAvatar: string | null =
+    (rawMeta.avatar_url as string | undefined) ??
+    (rawMeta.picture as string | undefined) ??
+    null;
+
+  console.log("[ProfilePage] user:", user);
+  console.log("[ProfilePage] user.user_metadata:", rawMeta);
+  console.log("[ProfilePage] derived userAvatar:", userAvatar);
 
   // Max resume limit and derived state
   const MAX_RESUMES = 3;
@@ -99,7 +103,10 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3 sm:gap-4">
             {userAvatar ? (
               <Image
-                src={userAvatar}
+                src={
+                  userAvatar ||
+                  "https://www.gravatar.com/avatar?d=mp&f=y" // fallback to Gravatar default if avatar URL is empty
+                }
                 alt="User avatar"
                 width={40}
                 height={40}
