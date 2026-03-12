@@ -48,7 +48,7 @@ export default function UpdateProfilePage() {
     try {
       const { ...updates } = updated;
       await updateProfile(slug, updates);
-      console.log("Profile updated", { slug });
+      //console.log("Profile updated", { slug });
 
       // Update sessionStorage cache used by /p/[slug]
       // This keeps the public profile page in sync after edits.

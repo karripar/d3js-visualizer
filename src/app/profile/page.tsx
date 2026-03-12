@@ -36,10 +36,6 @@ export default function ProfilePage() {
     (rawMeta.picture as string | undefined) ??
     null;
 
-  console.log("[ProfilePage] user:", user);
-  console.log("[ProfilePage] user.user_metadata:", rawMeta);
-  console.log("[ProfilePage] derived userAvatar:", userAvatar);
-
   // Max resume limit and derived state
   const MAX_RESUMES = 3;
   const hasReachedLimit = !!userId && resumes.length >= MAX_RESUMES;
@@ -59,7 +55,7 @@ export default function ProfilePage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Failed to load resumes:", error);
+        console.error("Failed to load resumes:");
         setResumes([]);
       } else {
         setResumes((data as Resume[]) ?? []);

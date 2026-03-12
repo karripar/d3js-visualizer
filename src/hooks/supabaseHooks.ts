@@ -58,14 +58,14 @@ const useSupabase = () => {
     profile: Omit<Profile, "id" | "created_at" | "slug">
   ) => {
     if (!profile.name || !profile.title) {
-      console.error("Name and title are required to create a profile.");
+      //console.error("Name and title are required to create a profile.");
       return null;
     }
 
     // limit the number of profiles to 3 per user
     const existingProfiles = await getAllProfilesByUser();
     if (existingProfiles.length >= 3) {
-      console.warn("User has reached the maximum number of profiles (3).");
+      //console.warn("User has reached the maximum number of profiles (3).");
       return null;
     }
 
@@ -76,7 +76,7 @@ const useSupabase = () => {
       .single();
     if (error) {
       console.log("Supabase insert data:", data, "error:", error);
-      console.error("Error creating profile:", error);
+      //console.error("Error creating profile:", error);
       return null;
     }
     return data as Profile;
@@ -89,7 +89,7 @@ const useSupabase = () => {
   ) => {
     // Prevent sending an empty update payload which can cause a 406 Not Acceptable from PostgREST
     if (!updates || Object.keys(updates).length === 0) {
-      console.warn("No updates provided. Aborting profile update.");
+      //console.warn("No updates provided. Aborting profile update.");
       return null;
     }
 
@@ -108,18 +108,9 @@ const useSupabase = () => {
     );
 
     if (Object.keys(cleanedUpdates).length === 0) {
-      console.warn(
-        "Only immutable or undefined fields provided. Nothing to update."
-      );
+      
       return null;
     }
-
-    console.log(
-      "Updating profile with slug:",
-      slug,
-      "Updates:",
-      cleanedUpdates
-    );
 
     const { data, error } = await supabase
       .from("profiles")
@@ -128,7 +119,6 @@ const useSupabase = () => {
       .select("*")
       .maybeSingle();
 
-    console.log("Supabase update response - Data:", data, "Error:", error);
     if (error) {
       console.error("Error updating profile:", error);
       return null;

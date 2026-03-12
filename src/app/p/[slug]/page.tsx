@@ -25,6 +25,7 @@ interface ProfileData {
   experiences: JobExperience[]; // added experiences to the type
 }
 
+
 // Simple sessionStorage cache helpers
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const cacheKey = (slug: string) => `profile:${slug}`;
@@ -67,7 +68,7 @@ export default function ProfilePage() {
         const cached = readCache(slug);
         if (cached) {
           setData(cached);
-          console.log("Loaded profile from cache:", slug);
+          
           return; // Skip network if fresh cache
         }
 

@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) =>{
         } = await supabase.auth.getUser();
         if (!isMounted) return;
         if (error) {
-          console.error("Error fetching user", error.message);
+          console.error("Error fetching user");
         }
         setUser(user ?? null);
       } finally {
