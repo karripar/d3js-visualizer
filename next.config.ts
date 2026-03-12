@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/~karripar/d3js",
-  
   images: {
     unoptimized: true,
     remotePatterns: [
